@@ -1,0 +1,244 @@
+<template>
+  <div class="q-pa-md q-pa-md-xl">
+
+    <div class="row items-center justify-between q-mb-xl">
+      <div>
+        <h1 class="text-h4 text-weight-bold q-my-none">{{ $t('customerDashboard.welcome') }}, {{ user.firstName }}!</h1>
+        <p class="text-body2 text-grey-6 q-mt-xs">{{ $t('customerDashboard.subtitle') }}</p>
+      </div>
+      <q-btn
+        color="primary"
+        icon="las la-life-ring"
+        :label="$t('common.support')"
+        unelevated
+        class="hidden sm-and-up"
+      />
+      <q-btn
+        color="primary"
+        icon="las la-life-ring"
+        round
+        dense
+        unelevated
+        class="sm-hide md-hide lg-hide xl-hide"
+      />
+    </div>
+
+    <div class="row q-col-gutter-lg">
+
+      <div class="col-12 col-md-8">
+
+        <q-card flat class="plan-card bg-primary text-white q-mb-lg q-pa-md">
+          <div class="row items-center justify-between">
+            <div>
+              <div class="text-subtitle2 text-uppercase opacity-80">{{ $t('customerDashboard.currentPlan') }}</div>
+              <div class="text-h4 text-weight-bold q-mt-xs">{{ subscription.planName }}</div>
+              <div class="text-body2 q-mt-sm opacity-80">
+                {{ $t('customerDashboard.renewsOn') }}: {{ formatDate(subscription.renewalDate) }}
+              </div>
+            </div>
+            <div class="text-right">
+              <q-icon name="las la-medal" size="64px" class="opacity-80" />
+            </div>
+          </div>
+          <q-card-actions align="left" class="q-px-none q-pt-md q-pb-none">
+            <q-btn color="white" text-color="primary" :label="$t('customerDashboard.upgradePlan')" unelevated />
+            <q-btn flat color="white" :label="$t('customerDashboard.manageBilling')" class="q-ml-sm" />
+          </q-card-actions>
+        </q-card>
+
+        <div class="row q-col-gutter-md">
+          <div v-for="(stat, index) in usageStats" :key="index" class="col-12 col-sm-6">
+            <q-card flat class="q-pa-md h-100">
+              <div class="row items-center q-mb-md">
+                <q-avatar :color="stat.color + '-1'" :text-color="stat.color" size="40px" class="q-mr-sm">
+                  <q-icon :name="stat.icon" size="24px" />
+                </q-avatar>
+                <div class="text-subtitle1 text-weight-medium">{{ $t(stat.titleKey) }}</div>
+              </div>
+              <q-linear-progress :value="stat.used / stat.total" :color="stat.color" size="8px" class="rounded-borders q-mb-sm" />
+              <div class="row justify-between text-caption text-grey-6">
+                <span>{{ stat.used }} {{ $t('common.used') }}</span>
+                <span>{{ stat.total }} {{ $t('common.total') }}</span>
+              </div>
+            </q-card>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="col-12 col-md-4">
+
+        <q-card flat class="q-pa-md q-mb-lg">
+          <div class="row items-center justify-between q-mb-md">
+            <div class="text-h6 text-weight-medium">{{ $t('customerDashboard.recentInvoices') }}</div>
+            <q-btn flat dense color="primary" :label="$t('common.viewAll')" />
+          </div>
+
+          <q-list separator>
+            <q-item v-for="invoice in recentInvoices" :key="invoice.id" class="q-px-none">
+              <q-item-section avatar>
+                <q-avatar color="grey-2" text-color="dark" icon="las la-file-invoice-dollar" />
+              </q-item-section>
+              <q-item-section>
+                <q-item-label class="text-weight-medium">{{ invoice.id }}</q-item-label>
+                <q-item-label caption>{{ formatDate(invoice.date) }}</q-item-label>
+              </q-item-section>
+              <q-item-section side>
+                <q-item-label class="text-weight-bold text-dark">${{ invoice.amount }}</q-item-label>
+                <q-chip
+                  :color="invoice.status === 'Paid' ? 'positive-1' : 'warning-1'"
+                  :text-color="invoice.status === 'Paid' ? 'positive' : 'warning'"
+                  dense size="sm" class="text-weight-bold"
+                >
+                  {{ invoice.status }}
+                </q-chip>
+              </q-item-section>
+            </q-item>
+          </q-list>
+        </q-card>
+
+        <q-card flat class="q-pa-md">
+          <div class="text-h6 text-weight-medium q-mb-md">{{ $t('customerDashboard.quickLinks') }}</div>
+          <div class="row q-gutter-sm">
+            <q-btn outline color="secondary" icon="las la-book" :label="$t('common.documentation')" class="col-grow" />
+            <q-btn outline color="secondary" icon="las la-video" :label="$t('common.tutorials')" class="col-grow" />
+            <q-btn outline color="secondary" icon="las la-users" :label="$t('common.community')" class="col-grow" />
+          </div>
+        </q-card>
+
+      </div>
+    </div>
+  </div>
+</template>
+
+<script>
+export default {
+  name: 'PageCustomerDashboard',
+  data() {
+    return {
+      user: { // Will be populated from localStorage or API
+        firstName: '',
+        email: '',
+        role: '',
+        customerId: '',
+        customerStatus: ''
+      },
+      subscription: {
+        planName: 'No Active Plan',
+        renewalDate: null,
+        price: 0
+      },
+      usageStats: [
+        { titleKey: 'customerDashboard.storageUsed', icon: 'las la-hdd', color: 'primary', used: 0, total: 0 },
+        { titleKey: 'customerDashboard.apiCalls', icon: 'las la-exchange-alt', color: 'secondary', used: 0, total: 0 }
+      ],
+      recentInvoices: [], // Will be fetched later
+      loading: false
+    }
+  },
+  async created() {
+    this.loadUserData();
+    if (this.user.customerStatus !== 'active') {
+      // If customer is not active, redirect to buy-package page
+      this.$router.push('/buy-package');
+      this.$q.notify({
+        type: 'info',
+        message: 'Your account is pending. Please select a package.',
+        icon: 'las la-exclamation-triangle',
+        position: 'top-right'
+      });
+    } else {
+      // Fetch more detailed customer/package info if active
+      await this.fetchCustomerDetails();
+    }
+  },
+  methods: {
+    loadUserData() {
+      const storedUser = localStorage.getItem('user');
+      if (storedUser) {
+        const parsedUser = JSON.parse(storedUser);
+        this.user.firstName = parsedUser.first_name || parsedUser.email.split('@')[0];
+        this.user.email = parsedUser.email;
+        this.user.role = parsedUser.role;
+        this.user.customerId = parsedUser.customer_id;
+        this.user.customerStatus = parsedUser.customer_status;
+      } else {
+        // Redirect to login if no user data found
+        this.$router.push('/login');
+        this.$q.notify({
+          type: 'negative',
+          message: 'Session expired or no user data found. Please log in again.',
+          icon: 'las la-user-circle',
+          position: 'top-right'
+        });
+      }
+    },
+    async fetchCustomerDetails() {
+      this.loading = true;
+      try {
+        const token = localStorage.getItem('token');
+        const response = await this.$axios.get(`http://localhost:3000/api/customers/${this.user.customerId}`, {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        });
+        const customerData = response.data;
+        if (customerData.Package) {
+          this.subscription.planName = customerData.Package.name;
+          this.subscription.price = customerData.Package.price;
+          this.subscription.renewalDate = customerData.renew_date;
+          this.usageStats[0].total = customerData.Package.max_products; // Example mapping
+          this.usageStats[1].total = customerData.Package.max_ebay_accounts * 1000; // Example mapping
+        }
+        // Assuming usageStats.used would come from another API or be part of customerData
+      } catch (error) {
+        this.$q.notify({
+          type: 'negative',
+          message: 'Failed to fetch customer details.',
+          icon: 'las la-exclamation-triangle',
+          position: 'top-right'
+        });
+        console.error('Error fetching customer details:', error);
+      } finally {
+        this.loading = false;
+      }
+    },
+    formatDate(dateStr) {
+      if (!dateStr) return '';
+      const locale = this.$i18n ? this.$i18n.locale : 'en-US';
+      return new Date(dateStr).toLocaleDateString(locale, {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric'
+      });
+    }
+  }
+}
+</script>
+
+<style lang="scss" scoped>
+.plan-card {
+  background: linear-gradient(135deg, $primary 0%, darken($primary, 15%) 100%);
+  border-radius: $radius-base;
+
+  .opacity-80 {
+    opacity: 0.8;
+  }
+}
+
+.h-100 {
+  height: 100%;
+}
+
+// Ensure invoice chips scale well in dark mode
+body.body--dark {
+  .plan-card {
+    background: linear-gradient(135deg, darken($primary, 20%) 0%, darken($primary, 40%) 100%);
+    border: none;
+  }
+
+  .q-item__section--side .text-dark {
+    color: white !important;
+  }
+}
+</style>
