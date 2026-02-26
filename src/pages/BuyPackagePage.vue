@@ -60,8 +60,8 @@ export default {
     }
   },
   async created() {
-    this.customerId = localStorage.getItem('pendingCustomerId');
-    this.customerEmail = localStorage.getItem('pendingCustomerEmail');
+    this.customerId = this.$q.localStorage.getItem('pendingCustomerId');
+    this.customerEmail = this.$q.localStorage.getItem('pendingCustomerEmail');
 
     if (!this.customerId || !this.customerEmail) {
       this.$q.notify({
@@ -80,12 +80,7 @@ export default {
     async fetchPackages() {
       this.loading = true;
       try {
-        const token = localStorage.getItem('token'); // Assuming admin token might be needed to fetch packages if not public
-        const response = await this.$axios.get('http://localhost:3000/api/packages', {
-          headers: {
-            Authorization: `Bearer ${token}` // Use a token if fetching packages is protected
-          }
-        });
+        const response = await this.$api.get('/packages');
         this.packages = response.data;
       } catch (error) {
         this.$q.notify({
@@ -112,16 +107,9 @@ export default {
 
       this.loading = true;
       try {
-        const token = localStorage.getItem('token'); // Use the token from the newly registered user (if any)
-        // In a real application, this would involve a payment gateway integration.
-        // For now, we simulate success and call our backend to activate.
-        const response = await this.$axios.post('http://localhost:3000/api/purchase-package', {
+        const response = await this.$api.post('/purchase-package', {
           customerId: this.customerId,
           packageId: this.selectedPackage.id
-        }, {
-          headers: {
-            Authorization: `Bearer ${token}` // Authenticate the purchase request
-          }
         });
 
         this.$q.notify({
@@ -131,9 +119,9 @@ export default {
           position: 'top-right'
         });
 
-        localStorage.removeItem('pendingCustomerId');
-        localStorage.removeItem('pendingCustomerEmail');
-        this.$router.push('/login'); // Redirect to login
+        this.$q.localStorage.remove('pendingCustomerId');
+        this.$q.localStorage.remove('pendingCustomerEmail');
+        this.$router.push('/customer-login'); // Redirect to customer login
       } catch (error) {
         let errorMessage = 'Failed to purchase package.';
         if (error.response && error.response.data && error.response.data.message) {
@@ -165,7 +153,7 @@ export default {
 .buy-package-card {
   max-width: 900px;
   width: 100%;
-  border-radius: $radius-lg;
+  border-radius: $radius-base;
   box-shadow: $shadow-2;
   background: $surface-light;
 
@@ -175,7 +163,7 @@ export default {
 }
 
 .package-card {
-  border-radius: $radius-md;
+  border-radius: $radius-sm;
   transition: all 0.2s ease-in-out;
   cursor: pointer;
   background: $bg-light;
@@ -194,11 +182,11 @@ export default {
   body.body--dark & {
     background: $bg-dark;
     &:hover {
-      box-shadow: $shadow-4-dark;
+      box-shadow: $shadow-4;
     }
     &.package-card-selected {
       border: 2px solid $primary;
-      box-shadow: $shadow-6-dark;
+      box-shadow: $shadow-6;
       background: rgba($primary, 0.15);
     }
   }

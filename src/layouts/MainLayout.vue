@@ -230,11 +230,11 @@ export default {
       return this.$q.dark.isActive;
     },
     isAuthenticated() {
-      return !!localStorage.getItem('token');
+      return !!this.$q.localStorage.getItem('token');
     },
     userRole() {
       try {
-        const user = JSON.parse(localStorage.getItem('user'));
+        const user = this.$q.localStorage.getItem('user');
         return user ? user.role : null;
       } catch (e) {
         console.log('Error parsing user data:', e);
@@ -243,7 +243,7 @@ export default {
     },
     userEmailInitial() {
       try {
-        const user = JSON.parse(localStorage.getItem('user'));
+        const user = this.$q.localStorage.getItem('user');
         return user && user.email ? user.email.charAt(0).toUpperCase() : 'U';
       } catch (e) {
         console.log('Error parsing user data:', e);
@@ -253,18 +253,19 @@ export default {
     // Filtered navigation items based on role
     filteredMainNavItems() {
       const allItems = [
-        { label: 'Dashboard', icon: 'las la-home', to: '/admin/dashboard', roles: ['sysadmin', 'owner', 'staff'] },
-        { label: 'Customers', icon: 'las la-users', to: '/admin/customer-management', roles: ['sysadmin'] },
-        { label: 'Packages', icon: 'las la-table', to: '/admin/packages', roles: ['sysadmin'] } // Assuming 'Tables' is admin-only for now
+        { label: 'Dashboard', icon: 'las la-home', to: 'dashboard', roles: ['sysadmin'] }, // Admin Dashboard
+        { label: 'Customers', icon: 'las la-users', to: 'customer-management', roles: ['sysadmin'] }, // Admin Customer Management
+        { label: 'Packages', icon: 'las la-table', to: 'packages', roles: ['sysadmin'] } // Admin Packages Management
       ];
       return allItems.filter(item => item.roles.includes(this.userRole));
     },
     filteredSystemNavItems() {
       const allItems = [
-        { label: 'Settings', icon: 'las la-cog', to: '/settings', roles: ['sysadmin', 'owner', 'staff'] },
-        { label: 'Design System', icon: 'las la-palette', to: '/design', roles: ['sysadmin'] }, // Design system might be admin/dev only
-        { label: 'My Portal', icon: 'las la-user-circle', to: '/customer/dashboard', roles: ['owner', 'staff'] },
-        { label: 'Connected Accounts', icon: 'las la-plug', to: '/connected-accounts', roles: ['owner', 'staff'] }
+        { label: 'Settings', icon: 'las la-cog', to: 'settings', roles: ['sysadmin'] }, // Admin Settings
+        { label: 'Design System', icon: 'las la-palette', to: 'design', roles: ['sysadmin'] }, // Admin Design System
+        { label: 'My Dashboard', icon: 'las la-user-circle', to: '/customer/dashboard', roles: ['owner', 'staff'] }, // Customer Dashboard
+        { label: 'Customer Settings', icon: 'las la-cog', to: '/customer/settings', roles: ['owner', 'staff'] }, // Customer Settings
+        { label: 'Connected Accounts', icon: 'las la-plug', to: '/customer/connected-accounts', roles: ['owner', 'staff'] } // Customer Connected Accounts
       ];
       return allItems.filter(item => item.roles.includes(this.userRole));
     },
@@ -286,7 +287,7 @@ export default {
     toggleTheme() {
       const targetMode = !this.$q.dark.isActive;
       this.$q.dark.set(targetMode);
-      localStorage.setItem('app-theme', targetMode ? 'dark' : 'light');
+      this.$q.localStorage.set('app-theme', targetMode ? 'dark' : 'light');
     },
     changeLanguage(lang) {
       if (this.$i18n) this.$i18n.locale = lang;
@@ -295,10 +296,10 @@ export default {
         this.$q.lang.set(langConfig.default);
       }).catch(() => console.warn(`Failed to load Quasar lang: ${lang}`));
 
-      localStorage.setItem('app-lang', lang);
+      this.$q.localStorage.set('app-lang', lang);
     },
     initPreferences() {
-      const savedTheme = localStorage.getItem('app-theme');
+      const savedTheme = this.$q.localStorage.getItem('app-theme');
       if (savedTheme) {
         this.$q.dark.set(savedTheme === 'dark');
       } else {
@@ -306,15 +307,23 @@ export default {
       }
       this.isDarkModeToggle = this.$q.dark.isActive;
 
-      if (this.$i18n) {
+      // Also retrieve saved language if any
+      const savedLang = this.$q.localStorage.getItem('app-lang');
+      if (savedLang) {
+        this.currentLang = savedLang;
+        if (this.$i18n) this.$i18n.locale = savedLang;
+        import(`quasar/lang/${savedLang}`).then(langConfig => {
+          this.$q.lang.set(langConfig.default);
+        }).catch(() => console.warn(`Failed to load Quasar lang: ${savedLang}`));
+      } else if (this.$i18n) {
         this.currentLang = this.$i18n.locale;
       }
     },
     logout() {
       this.mobileMoreMenuOpen = false;
-      localStorage.removeItem('token');
-      localStorage.removeItem('user');
-      this.$router.push('/login');
+      this.$q.localStorage.remove('token');
+      this.$q.localStorage.remove('user');
+      this.$router.push('/admin-login'); // Redirect to admin login after logout
     }
   },
   created() {

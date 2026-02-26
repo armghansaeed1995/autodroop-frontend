@@ -6,6 +6,7 @@ import {
   createWebHashHistory,
 } from 'vue-router'
 import routes from './routes'
+import { LocalStorage } from 'quasar'
 
 /*
  * If not building with SSR mode, you can
@@ -35,40 +36,49 @@ export default defineRouter(function (/* { store, ssrContext } */) {
 
   // Placeholder for authentication and role checking
   const isAuthenticated = () => {
-    return !!localStorage.getItem('token');
+    return !!LocalStorage.getItem('token');
   };
 
   const getUserRole = () => {
     try {
-      const user = JSON.parse(localStorage.getItem('user'));
+      const user = LocalStorage.getItem('user');
       return user ? user.role : null;
     } catch (e) {
-      console.error('Error parsing user from localStorage:', e);
+      console.error('Error parsing user from LocalStorage:', e);
       return null;
     }
   };
 
   Router.beforeEach((to, from, next) => {
     const requiresAuth = to.meta.requiresAuth;
-    const requiredRoles = to.meta.roles; // Now an array of roles
+    const requiredRoles = to.meta.roles;
     const authenticated = isAuthenticated();
     const userRole = getUserRole();
 
+    // Pages that don't require authentication but shouldn't be accessed if already logged in
+    const authPages = ['/admin-login', '/customer-login', '/register'];
+
     if (requiresAuth && !authenticated) {
-      // If authentication is required and user is not logged in, redirect to login page
-      next('/login');
-    } else if (authenticated && (to.path === '/login' || to.path === '/register')) {
-      // If user is already authenticated and tries to access login/register, redirect to dashboard based on role
+      // If authentication is required and user is not logged in, redirect to the appropriate login page
+      if (to.path.startsWith('/admin')) {
+        next('/admin-login');
+      } else if (to.path.startsWith('/customer')) {
+        next('/customer-login');
+      } else {
+        // Default to customer login for other protected routes if not specified
+        next('/customer-login');
+      }
+    } else if (authenticated && authPages.includes(to.path)) {
+      // If user is already authenticated and tries to access login/register pages, redirect to dashboard based on role
       if (userRole === 'sysadmin') {
         next('/admin/dashboard');
       } else if (userRole === 'owner' || userRole === 'staff') {
         next('/customer/dashboard');
       } else {
-        next('/'); // Fallback if role is unknown
+        next('/'); // Fallback for unknown role
       }
     } else if (requiresAuth && authenticated && requiredRoles && !requiredRoles.includes(userRole)) {
       // If authentication is required, user is logged in, but role does not match, redirect to appropriate dashboard
-      // For now, redirect to the dashboard that matches their role or the main dashboard
       if (userRole === 'sysadmin') {
         next('/admin/dashboard');
       } else if (userRole === 'owner' || userRole === 'staff') {

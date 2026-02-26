@@ -62,7 +62,7 @@ export default {
   methods: {
     updateLanguage(lang) {
       this.$i18n.locale = lang;
-      localStorage.setItem('app-lang', lang);
+      this.$q.localStorage.set('app-lang', lang);
 
       import(/* @vite-ignore */ `../i18n/${lang}`).then(langConfig => {
         this.$q.lang.set(langConfig.default);
@@ -70,7 +70,7 @@ export default {
     },
     updateTheme(isDark) {
       this.$q.dark.set(isDark);
-      localStorage.setItem('app-theme', isDark ? 'dark' : 'light');
+      this.$q.localStorage.set('app-theme', isDark ? 'dark' : 'light');
     }
   }
 }

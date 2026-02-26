@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia';
 import { reactive, toRefs } from 'vue';
+import { LocalStorage } from 'quasar'
 
 const WS_URL = 'ws://localhost:3000';
 
@@ -54,8 +55,8 @@ export const useSocketStore = defineStore('socket', () => {
 class WebSocketService {
   constructor() {
     this.socket = null;
-    this.token = localStorage.getItem('token') || null; // Changed from 'jwt' to 'token'
-    this.user = JSON.parse(localStorage.getItem('user')) || null;
+    this.token = LocalStorage.getItem('token') || null; // Changed from 'jwt' to 'token'
+    this.user = JSON.parse(LocalStorage.getItem('user')) || null;
     this.store = useSocketStore();
     this.pendingRequests = new Map(); // To store Promises for request-response
     this.requestId = 0;
@@ -159,11 +160,11 @@ class WebSocketService {
     this.token = token;
     this.user = user;
     if (token) {
-      localStorage.setItem('token', token);
-      localStorage.setItem('user', JSON.stringify(user));
+      LocalStorage.set('token', token);
+      LocalStorage.set('user', user);
     } else {
-      localStorage.removeItem('token');
-      localStorage.removeItem('user');
+      LocalStorage.removeItem('token');
+      LocalStorage.removeItem('user');
     }
   }
 

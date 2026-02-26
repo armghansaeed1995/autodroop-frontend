@@ -1,16 +1,34 @@
 import { boot } from 'quasar/wrappers';
+import { LocalStorage } from 'quasar';
 import axios from 'axios';
 
-// Be careful when using SSR for cross-request state pollution
-// due to creating a Singleton per request.
-// The function provided as param to boot() kit the boot file
-// with server-side access to `ssrContext` virtual object
+// Create a custom Axios instance named 'api'
+const api = axios.create({
+  baseURL: process.env.API_BASE_URL // Use the environment variable
+});
+
+// Add a request interceptor to attach the JWT token
+api.interceptors.request.use(config => {
+  const token = LocalStorage.getItem('token');
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  return config;
+}, error => {
+  return Promise.reject(error);
+});
+
 export default boot(({ app }) => {
   // for use inside Vue files (Options API) through this.$axios and this.$api
-  app.config.globalProperties.$axios = axios;
-  // ^ ^ ^ this will allow you to use this.$axios (for Vue Options API form)
-  //       so you won't necessarily have to import axios in each vue file
+  // We'll replace $axios with $api for our custom instance, or use both if needed
+  app.config.globalProperties.$api = api;
+
+  // You can still keep the original axios if you need it for other non-API requests
+  // app.config.globalProperties.$axios = axios;
 
   // for use inside Vue files (Composition API)
-  // app.provide('axios', axios)
+  // app.provide('api', api);
 });
+
+// Export the api instance for use in standard JS files
+export { api };

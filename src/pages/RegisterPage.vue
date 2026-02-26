@@ -193,7 +193,7 @@ export default {
       this.loading = true;
 
       try {
-        const response = await this.$axios.post('http://localhost:3000/api/register', {
+        const response = await this.$api.post('/register', {
           firstName: this.firstName,
           lastName: this.lastName,
           email: this.email,
@@ -210,8 +210,8 @@ export default {
         });
 
         // Store customer ID and email temporarily for the package purchase flow
-        localStorage.setItem('pendingCustomerId', response.data.customer.id);
-        localStorage.setItem('pendingCustomerEmail', response.data.customer.email);
+        this.$q.localStorage.set('pendingCustomerId', response.data.customer.id);
+        this.$q.localStorage.set('pendingCustomerEmail', response.data.customer.email);
 
         // Redirect to buy package page
         this.$router.push('/buy-package');

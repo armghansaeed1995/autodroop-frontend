@@ -1,86 +1,47 @@
 const routes = [
-  // Web Pages
   {
     path: '/',
-    component: () => import('pages/IndexPage.vue')
+    component: () => import('layouts/EmptyLayout.vue'),
+    children: [
+      { path: 'admin/login', component: () => import('pages/AdminLogin.vue'), meta: { requiresAuth: false } }, // New Admin Login Page
+      { path: 'customer/login', component: () => import('pages/CustomerLogin.vue'), meta: { requiresAuth: false } } // New Customer Login Page
+    ]
   },
 
-  //  Admin/App Pages
+  {
+    path: '/',
+    component: () => import('layouts/EmptyLayout.vue'),
+    children: [
+      { path: '', component: () => import('pages/IndexPage.vue') },
+      { path: 'register', component: () => import('pages/RegisterPage.vue'), meta: { requiresAuth: false } },
+      { path: 'buy-package', component: () => import('pages/BuyPackagePage.vue'), meta: { requiresAuth: false } },
+    ]
+  },
+
+  // Admin Portal Routes
   {
     path: '/admin',
     component: () => import('layouts/MainLayout.vue'),
+    meta: { requiresAuth: true, roles: ['sysadmin'] }, // Admin portal requires sysadmin role
     children: [
-      {
-        path: 'dashboard',
-        component: () => import('pages/DashboardPage.vue'),
-        meta: { requiresAuth: true, roles: ['sysadmin', 'owner', 'staff'] },
-      },
-      {
-        path: 'settings',
-        component: () => import('pages/SettingsPage.vue'),
-        meta: { requiresAuth: true, roles: ['sysadmin', 'owner', 'staff'] },
-      },
-      {
-        path: 'packages',
-        component: () => import('pages/PackagesPage.vue'),
-        meta: { requiresAuth: true, roles: ['sysadmin'] },
-      },
-      {
-        path: 'design',
-        component: () => import('pages/DesignShowcase.vue'),
-        meta: { requiresAuth: true, roles: ['sysadmin'] }, // Assuming design system is primarily for sysadmin/dev
-      },
-
-      // Role-Specific Pages
-      {
-        path: 'customer-management', // Changed from 'admin/customers' for clarity
-        component: () => import('pages/admin/CustomerManagement.vue'),
-        meta: { requiresAuth: true, roles: ['sysadmin'] },
-      },
+      { path: 'dashboard', component: () => import('pages/AdminDashboard.vue'), meta: { requiresAuth: true, roles: ['sysadmin'] } },
+      { path: 'settings', component: () => import('pages/SettingsPage.vue'), meta: { requiresAuth: true, roles: ['sysadmin'] } },
+      { path: 'packages', component: () => import('pages/PackagesPage.vue'), meta: { requiresAuth: true, roles: ['sysadmin'] } },
+      { path: 'design', component: () => import('pages/DesignShowcase.vue'), meta: { requiresAuth: true, roles: ['sysadmin'] } },
+      { path: 'customer-management', component: () => import('pages/admin/CustomerManagement.vue'), meta: { requiresAuth: true, roles: ['sysadmin'] } },
     ]
   },
+
+  // Customer Portal Routes
   {
-    path: '/',
+    path: '/customer',
     component: () => import('layouts/MainLayout.vue'),
+    meta: { requiresAuth: true, roles: ['owner', 'staff'] }, // Customer portal requires owner/staff roles
     children: [
-
-      // General Admin/App Pages
-      {
-        path: 'dashboard',
-        component: () => import('pages/DashboardPage.vue'),
-        meta: { requiresAuth: true, roles: ['sysadmin', 'owner', 'staff'] },
-      },
-
-      {
-        path: 'customer/dashboard',
-        component: () => import('pages/customer/Dashboard.vue'),
-        meta: { requiresAuth: true, roles: ['owner', 'staff'] },
-      },
-      {
-        path: 'connected-accounts',
-        component: () => import('pages/ConnectedAccounts.vue'),
-        meta: { requiresAuth: true, roles: ['owner', 'staff'] },
-      },
-    ],
-  },
-
-  // ==========================================
-  // Standalone Pages (No Sidebar / No Header)
-  // ==========================================
-  {
-    path: '/login',
-    component: () => import('pages/LoginPage.vue'),
-    meta: { requiresAuth: false },
-  },
-  {
-    path: '/register',
-    component: () => import('pages/RegisterPage.vue'),
-    meta: { requiresAuth: false },
-  },
-  {
-    path: '/buy-package',
-    component: () => import('pages/BuyPackagePage.vue'),
-    meta: { requiresAuth: false }, // No auth required for this step
+      { path: 'dashboard', component: () => import('pages/customer/Dashboard.vue'), meta: { requiresAuth: true, roles: ['owner', 'staff'] } },
+      { path: 'settings', component: () => import('pages/SettingsPage.vue'), meta: { requiresAuth: true, roles: ['owner', 'staff'] } }, // Customer-specific settings if any
+      { path: 'connected-accounts', component: () => import('pages/ConnectedAccounts.vue'), meta: { requiresAuth: true, roles: ['owner', 'staff'] } },
+    ]
   },
 
   // Always leave this as last one,

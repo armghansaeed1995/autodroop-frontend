@@ -185,12 +185,7 @@ export default {
   methods: {
     async fetchPackages() {
       try {
-        const token = localStorage.getItem('token');
-        const response = await this.$axios.get('http://localhost:3000/api/packages', {
-          headers: {
-            Authorization: `Bearer ${token}`
-          }
-        });
+        const response = await this.$api.get('/packages');
         this.packages = response.data;
       } catch (error) {
         this.$q.notify({
@@ -212,14 +207,9 @@ export default {
     },
     async savePackage() {
       try {
-        const token = localStorage.getItem('token');
         if (this.editedPackage.id) {
           // Update existing package
-          await this.$axios.put(`http://localhost:3000/api/packages/${this.editedPackage.id}`, this.editedPackage, {
-            headers: {
-              Authorization: `Bearer ${token}`
-            }
-          });
+          await this.$api.put(`/packages/${this.editedPackage.id}`, this.editedPackage);
           this.$q.notify({
             type: 'positive',
             message: 'Package updated successfully.',
@@ -228,11 +218,7 @@ export default {
           });
         } else {
           // Create new package
-          await this.$axios.post('http://localhost:3000/api/packages', this.editedPackage, {
-            headers: {
-              Authorization: `Bearer ${token}`
-            }
-          });
+          await this.$api.post('/packages', this.editedPackage);
           this.$q.notify({
             type: 'positive',
             message: 'Package created successfully.',
@@ -265,12 +251,7 @@ export default {
         color: 'negative'
       }).onOk(async () => {
         try {
-          const token = localStorage.getItem('token');
-          await this.$axios.delete(`http://localhost:3000/api/packages/${pkg.id}`, {
-            headers: {
-              Authorization: `Bearer ${token}`
-            }
-          });
+          await this.$api.delete(`/packages/${pkg.id}`);
           this.$q.notify({
             type: 'positive',
             message: 'Package successfully deleted.',

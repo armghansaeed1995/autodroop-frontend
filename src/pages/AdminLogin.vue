@@ -6,17 +6,17 @@
         <div class="col-12 col-md-6 bg-primary text-white flex flex-center q-pa-xl login-branding sm-hide xs-hide">
           <div class="text-center">
             <q-icon name="las la-cube" size="80px" class="q-mb-md" />
-            <h2 class="text-h3 text-weight-bold q-my-none">Autodroop</h2>
+            <h2 class="text-h3 text-weight-bold q-my-none">Admin Portal</h2>
             <p class="text-subtitle1 q-mt-md opacity-80">
-              Sign in to manage your dropshipping operations efficiently and securely.
+              Manage your platform efficiently and securely.
             </p>
           </div>
         </div>
 
         <div class="col-12 col-md-6 q-pa-xl flex column justify-center form-container">
           <div class="q-mb-xl">
-            <div class="text-h4 text-weight-bold q-mb-xs">Welcome Back</div>
-            <div class="text-body2 text-grey-6">Please enter your details to sign in.</div>
+            <div class="text-h4 text-weight-bold q-mb-xs">Admin Login</div>
+            <div class="text-body2 text-grey-6">Please enter your admin credentials.</div>
           </div>
 
           <q-form @submit="onSubmit" @reset="onReset" class="q-gutter-y-md">
@@ -75,9 +75,9 @@
           </q-form>
 
           <div class="text-center q-mt-xl text-body2">
-            <span class="text-grey-6">Don't have an account?</span>
-            <router-link to="/register" class="text-primary text-weight-medium q-ml-xs" style="text-decoration: none;">
-              Register here
+            <span class="text-grey-6">Are you a customer?</span>
+            <router-link to="/customer-login" class="text-primary text-weight-medium q-ml-xs" style="text-decoration: none;">
+              Sign in here
             </router-link>
           </div>
 
@@ -89,7 +89,7 @@
 
 <script>
 export default {
-  name: 'PageLogin',
+  name: 'PageAdminLogin',
   data() {
     return {
       email: '',
@@ -103,15 +103,15 @@ export default {
       this.loading = true;
 
       try {
-        const response = await this.$axios.post('http://localhost:3000/api/login', {
+        const response = await this.$api.post('/auth/admin-login', {
           email: this.email,
           password: this.password
         });
 
         const { token, user } = response.data;
 
-        localStorage.setItem('token', token);
-        localStorage.setItem('user', JSON.stringify(user));
+        this.$q.localStorage.set('token', token);
+        this.$q.localStorage.set('user', user);
 
         this.$q.notify({
           color: 'positive',
@@ -120,12 +120,8 @@ export default {
           position: 'top-right'
         });
 
-        // Redirect based on user role
-        if (user.role === 'sysadmin') {
-          this.$router.push('/admin/dashboard'); // Assuming an admin dashboard route
-        } else {
-          this.$router.push('/customer/dashboard'); // Assuming a customer dashboard route
-        }
+        // Redirect to admin dashboard
+        this.$router.push('/admin/dashboard');
 
       } catch (error) {
         let errorMessage = 'An unexpected error occurred during login.';

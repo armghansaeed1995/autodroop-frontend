@@ -38,6 +38,10 @@ export default defineConfig((/* ctx */) => {
       },
 
       vueRouterMode: 'history', // available values: 'hash', 'history'
+
+      env: {
+        API_BASE_URL: process.env.API_BASE_URL
+      },
       // vueRouterBase,
       // vueDevtools,
       // vueOptionsAPI: false,
@@ -91,7 +95,7 @@ export default defineConfig((/* ctx */) => {
       // directives: [],
 
       // Quasar plugins
-      plugins: ['Notify'],
+      plugins: ['Notify', 'Dialog', 'LocalStorage'],
     },
 
     // animations: 'all', // --- includes all animations

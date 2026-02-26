@@ -138,6 +138,8 @@ export default {
   },
   async created() {
     this.loadUserData();
+    console.log('User Data:', this.user);
+
     if (this.user.customerStatus !== 'active') {
       // If customer is not active, redirect to buy-package page
       this.$router.push('/buy-package');
@@ -154,7 +156,7 @@ export default {
   },
   methods: {
     loadUserData() {
-      const storedUser = localStorage.getItem('user');
+      const storedUser = this.$q.localStorage.getItem('user');
       if (storedUser) {
         const parsedUser = JSON.parse(storedUser);
         this.user.firstName = parsedUser.first_name || parsedUser.email.split('@')[0];
@@ -164,7 +166,7 @@ export default {
         this.user.customerStatus = parsedUser.customer_status;
       } else {
         // Redirect to login if no user data found
-        this.$router.push('/login');
+        this.$router.push('/customer-login');
         this.$q.notify({
           type: 'negative',
           message: 'Session expired or no user data found. Please log in again.',
@@ -176,12 +178,7 @@ export default {
     async fetchCustomerDetails() {
       this.loading = true;
       try {
-        const token = localStorage.getItem('token');
-        const response = await this.$axios.get(`http://localhost:3000/api/customers/${this.user.customerId}`, {
-          headers: {
-            Authorization: `Bearer ${token}`
-          }
-        });
+        const response = await this.$api.get(`/customers/${this.user.customerId}`);
         const customerData = response.data;
         if (customerData.Package) {
           this.subscription.planName = customerData.Package.name;

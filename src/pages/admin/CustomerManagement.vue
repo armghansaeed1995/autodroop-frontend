@@ -345,12 +345,7 @@ export default {
     async fetchCustomers() {
       this.loading = true;
       try {
-        const token = localStorage.getItem('token');
-        const response = await this.$axios.get('http://localhost:3000/api/admin/customers', {
-          headers: {
-            Authorization: `Bearer ${token}`
-          }
-        });
+        const response = await this.$api.get('/admin/customers');
         this.customers = response.data;
       } catch (error) {
         this.$q.notify({
@@ -366,12 +361,7 @@ export default {
     },
     async fetchPackages() {
       try {
-        const token = localStorage.getItem('token');
-        const response = await this.$axios.get('http://localhost:3000/api/packages', {
-          headers: {
-            Authorization: `Bearer ${token}`
-          }
-        });
+        const response = await this.$api.get('/packages');
         this.packages = response.data;
       } catch (error) {
         this.$q.notify({
@@ -402,15 +392,12 @@ export default {
         },    async saveCustomer() {
       this.loading = true;
       try {
-        const token = localStorage.getItem('token');
         const payload = { ...this.editedCustomer };
         delete payload.Package; // Remove nested Package object if present
 
         if (this.editedCustomer.id) {
           // Update existing customer
-          await this.$axios.put(`http://localhost:3000/api/admin/customers/${this.editedCustomer.id}`, payload, {
-            headers: { Authorization: `Bearer ${token}` }
-          });
+          await this.$api.put(`/admin/customers/${this.editedCustomer.id}`, payload);
           this.$q.notify({
             type: 'positive',
             message: 'Customer updated successfully.',
@@ -422,9 +409,7 @@ export default {
           delete payload.id; // Remove id from payload for new customer creation
 
           // For create, we also need to register a user
-          await this.$axios.post('http://localhost:3000/api/admin/customers', payload, {
-            headers: { Authorization: `Bearer ${token}` }
-          });
+          await this.$api.post('/admin/customers', payload);
           this.$q.notify({
             type: 'positive',
             message: 'Customer created successfully.',
@@ -456,10 +441,7 @@ export default {
       }).onOk(async () => {
         this.loading = true;
         try {
-          const token = localStorage.getItem('token');
-          await this.$axios.delete(`http://localhost:3000/api/admin/customers/${customer.id}`, {
-            headers: { Authorization: `Bearer ${token}` }
-          });
+          await this.$api.delete(`/admin/customers/${customer.id}`);
           this.$q.notify({
             type: 'positive',
             message: 'Customer successfully deleted.',

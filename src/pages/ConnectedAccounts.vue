@@ -82,12 +82,7 @@ export default {
     async fetchAccounts() {
       this.loading = true;
       try {
-        const token = localStorage.getItem('token');
-        const response = await this.$axios.get('http://localhost:3000/api/buyer-accounts', {
-          headers: {
-            Authorization: `Bearer ${token}`
-          }
-        });
+        const response = await this.$api.get('/buyer-accounts');
         this.accounts = response.data;
       } catch (error) {
         this.$q.notify({
@@ -111,12 +106,7 @@ export default {
       }).onOk(async () => {
         this.loading = true;
         try {
-          const token = localStorage.getItem('token');
-          await this.$axios.delete(`http://localhost:3000/api/buyer-accounts/${id}`, {
-            headers: {
-              Authorization: `Bearer ${token}`
-            }
-          });
+          await this.$api.delete(`/buyer-accounts/${id}`);
           this.$q.notify({
             type: 'positive',
             message: 'Account disconnected successfully.',
