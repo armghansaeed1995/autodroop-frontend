@@ -265,7 +265,10 @@ export default {
         { label: 'Design System', icon: 'las la-palette', to: 'design', roles: ['sysadmin'] }, // Admin Design System
         { label: 'My Dashboard', icon: 'las la-user-circle', to: '/customer/dashboard', roles: ['owner', 'staff'] }, // Customer Dashboard
         { label: 'Customer Settings', icon: 'las la-cog', to: '/customer/settings', roles: ['owner', 'staff'] }, // Customer Settings
-        { label: 'Connected Accounts', icon: 'las la-plug', to: '/customer/connected-accounts', roles: ['owner', 'staff'] } // Customer Connected Accounts
+        { label: 'Connected Accounts', icon: 'las la-plug', to: '/customer/connected-accounts', roles: ['owner', 'staff'] }, // Customer Connected Accounts
+        { label: 'Orders', icon: 'las la-receipt', to: '/customer/orders', roles: ['owner', 'staff'] }, // New Orders List page
+        { label: 'Message Templates', icon: 'las la-envelope', to: '/customer/message-templates', roles: ['owner', 'staff'] }, // New Message Templates page
+        { label: 'Suppliers', icon: 'las la-warehouse', to: '/customer/suppliers', roles: ['owner', 'staff'] } // New Suppliers List page
       ];
       return allItems.filter(item => item.roles.includes(this.userRole));
     },
@@ -307,11 +310,11 @@ export default {
       }
       this.isDarkModeToggle = this.$q.dark.isActive;
 
-      // Also retrieve saved language if any
       const savedLang = this.$q.localStorage.getItem('app-lang');
       if (savedLang) {
         this.currentLang = savedLang;
         if (this.$i18n) this.$i18n.locale = savedLang;
+        // Quasar language pack needs to be set manually here
         import(`quasar/lang/${savedLang}`).then(langConfig => {
           this.$q.lang.set(langConfig.default);
         }).catch(() => console.warn(`Failed to load Quasar lang: ${savedLang}`));
@@ -323,7 +326,12 @@ export default {
       this.mobileMoreMenuOpen = false;
       this.$q.localStorage.remove('token');
       this.$q.localStorage.remove('user');
-      this.$router.push('/admin-login'); // Redirect to admin login after logout
+      // Determine redirect based on user role
+      if (this.userRole === 'sysadmin') {
+        this.$router.push('/admin-login');
+      } else {
+        this.$router.push('/customer-login');
+      }
     }
   },
   created() {

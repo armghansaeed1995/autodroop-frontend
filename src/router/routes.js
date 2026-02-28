@@ -1,20 +1,14 @@
 const routes = [
+  // Standalone Pages (No MainLayout - uses EmptyLayout)
   {
     path: '/',
     component: () => import('layouts/EmptyLayout.vue'),
     children: [
-      { path: 'admin/login', component: () => import('pages/AdminLogin.vue'), meta: { requiresAuth: false } }, // New Admin Login Page
-      { path: 'customer/login', component: () => import('pages/CustomerLogin.vue'), meta: { requiresAuth: false } } // New Customer Login Page
-    ]
-  },
-
-  {
-    path: '/',
-    component: () => import('layouts/EmptyLayout.vue'),
-    children: [
-      { path: '', component: () => import('pages/IndexPage.vue') },
+      { path: '', component: () => import('pages/IndexPage.vue') }, // Default route for '/'
       { path: 'register', component: () => import('pages/RegisterPage.vue'), meta: { requiresAuth: false } },
       { path: 'buy-package', component: () => import('pages/BuyPackagePage.vue'), meta: { requiresAuth: false } },
+      { path: 'admin-login', component: () => import('pages/AdminLogin.vue'), meta: { requiresAuth: false } },
+      { path: 'customer-login', component: () => import('pages/CustomerLogin.vue'), meta: { requiresAuth: false } }
     ]
   },
 
@@ -41,6 +35,10 @@ const routes = [
       { path: 'dashboard', component: () => import('pages/customer/Dashboard.vue'), meta: { requiresAuth: true, roles: ['owner', 'staff'] } },
       { path: 'settings', component: () => import('pages/SettingsPage.vue'), meta: { requiresAuth: true, roles: ['owner', 'staff'] } }, // Customer-specific settings if any
       { path: 'connected-accounts', component: () => import('pages/ConnectedAccounts.vue'), meta: { requiresAuth: true, roles: ['owner', 'staff'] } },
+      { path: 'product-drafts', component: () => import('pages/ProductDrafts.vue'), meta: { requiresAuth: true, roles: ['owner', 'staff'] } },
+      { path: 'orders', component: () => import('pages/OrdersList.vue'), meta: { requiresAuth: true, roles: ['owner', 'staff'] } },
+      { path: 'message-templates', component: () => import('pages/MessageTemplates.vue'), meta: { requiresAuth: true, roles: ['owner', 'staff'] } },
+      { path: 'suppliers', component: () => import('pages/SuppliersList.vue'), meta: { requiresAuth: true, roles: ['owner', 'staff'] } }, // New Suppliers List page
     ]
   },
 
