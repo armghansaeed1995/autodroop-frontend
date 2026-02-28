@@ -70,7 +70,7 @@
           <q-td :props="props">
             ${{ parseFloat(props.row.selling_price).toFixed(2) }}
           </q-td>
-        </q-template>
+        </template>
 
         <template v-slot:body-cell-actions="props">
           <q-td :props="props" class="q-gutter-xs">

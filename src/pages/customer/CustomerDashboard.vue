@@ -23,7 +23,11 @@
       />
     </div>
 
-    <div class="row q-col-gutter-lg">
+    <q-inner-loading :showing="loading" label="Fetching dashboard data..." label-class="text-teal" label-style="font-size: 1.1em">
+      <q-spinner-gears size="50px" color="teal" />
+    </q-inner-loading>
+
+    <div class="row q-col-gutter-lg" :class="{ 'q-card--hidden': loading }">
 
       <div class="col-12 col-md-8">
 
@@ -45,6 +49,27 @@
             <q-btn flat color="white" :label="$t('customerDashboard.manageBilling')" class="q-ml-sm" />
           </q-card-actions>
         </q-card>
+
+        <div class="row q-col-gutter-md q-mb-lg">
+          <div class="col-12 col-sm-6 col-md-4">
+            <q-card flat class="q-pa-md h-100">
+              <div class="text-subtitle1 text-weight-medium q-mb-sm">Total Sales</div>
+              <div class="text-h5 text-weight-bold text-primary">${{ stats.totalSales.toFixed(2) }}</div>
+            </q-card>
+          </div>
+          <div class="col-12 col-sm-6 col-md-4">
+            <q-card flat class="q-pa-md h-100">
+              <div class="text-subtitle1 text-weight-medium q-mb-sm">Total Orders</div>
+              <div class="text-h5 text-weight-bold text-secondary">{{ stats.orderCount }}</div>
+            </q-card>
+          </div>
+          <div class="col-12 col-sm-6 col-md-4">
+            <q-card flat class="q-pa-md h-100">
+              <div class="text-subtitle1 text-weight-medium q-mb-sm">Active Listings</div>
+              <div class="text-h5 text-weight-bold text-info">{{ stats.activeListings }}</div>
+            </q-card>
+          </div>
+        </div>
 
         <div class="row q-col-gutter-md">
           <div v-for="(stat, index) in usageStats" :key="index" class="col-12 col-sm-6">
@@ -133,7 +158,12 @@ export default {
         { titleKey: 'customerDashboard.apiCalls', icon: 'las la-exchange-alt', color: 'secondary', used: 0, total: 0 }
       ],
       recentInvoices: [], // Will be fetched later
-      loading: false
+      loading: true, // Set to true initially for overall dashboard loading
+      stats: { // New: for dashboard analytics stats
+        totalSales: 0,
+        orderCount: 0,
+        activeListings: 0
+      }
     }
   },
   async created() {
@@ -152,6 +182,7 @@ export default {
     } else {
       // Fetch more detailed customer/package info if active
       await this.fetchCustomerDetails();
+      await this.fetchStats(); // New: Fetch dashboard stats
     }
   },
   methods: {
@@ -166,7 +197,7 @@ export default {
         this.user.customerStatus = parsedUser.customer_status;
       } else {
         // Redirect to login if no user data found
-        this.$router.push('/customer-login');
+        this.$router.push('/customer/login');
         this.$q.notify({
           type: 'negative',
           message: 'Session expired or no user data found. Please log in again.',
@@ -176,7 +207,7 @@ export default {
       }
     },
     async fetchCustomerDetails() {
-      this.loading = true;
+      // this.loading = true; // Overall loading is now managed by fetchStats
       try {
         const response = await this.$api.get(`/customers/${this.user.customerId}`);
         const customerData = response.data;
@@ -196,6 +227,25 @@ export default {
           position: 'top-right'
         });
         console.error('Error fetching customer details:', error);
+      } finally {
+        // this.loading = false; // Overall loading is now managed by fetchStats
+      }
+    },
+    async fetchStats() { // New method to fetch analytics
+      this.loading = true;
+      try {
+        const response = await this.$api.get('/analytics/dashboard-stats');
+        this.stats.totalSales = response.data.totalSales;
+        this.stats.orderCount = response.data.orderCount;
+        this.stats.activeListings = response.data.activeListings;
+      } catch (error) {
+        this.$q.notify({
+          type: 'negative',
+          message: error.response?.data?.message || 'Failed to fetch dashboard statistics.',
+          icon: 'las la-exclamation-triangle',
+          position: 'top-right'
+        });
+        console.error('Error fetching dashboard stats:', error);
       } finally {
         this.loading = false;
       }

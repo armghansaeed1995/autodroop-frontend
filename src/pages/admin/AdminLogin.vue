@@ -76,7 +76,7 @@
 
           <div class="text-center q-mt-xl text-body2">
             <span class="text-grey-6">Are you a customer?</span>
-            <router-link to="/customer-login" class="text-primary text-weight-medium q-ml-xs" style="text-decoration: none;">
+            <router-link to="/customer/login" class="text-primary text-weight-medium q-ml-xs" style="text-decoration: none;">
               Sign in here
             </router-link>
           </div>
@@ -103,7 +103,7 @@ export default {
       this.loading = true;
 
       try {
-        const response = await this.$api.post('/auth/admin-login', {
+        const response = await this.$api.post('/auth/admin/login', {
           email: this.email,
           password: this.password
         });

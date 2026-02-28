@@ -212,7 +212,7 @@
 
 <script>
 export default {
-  name: 'MainLayout',
+  name: 'AdminLayout', // Changed name
   data() {
     return {
       leftDrawerOpen: false,
@@ -251,24 +251,18 @@ export default {
       }
     },
     // Filtered navigation items based on role
-    filteredMainNavItems() {
+    filteredMainNavItems() { // Specific to Admin layout
       const allItems = [
-        { label: 'Dashboard', icon: 'las la-home', to: 'dashboard', roles: ['sysadmin'] }, // Admin Dashboard
-        { label: 'Customers', icon: 'las la-users', to: 'customer-management', roles: ['sysadmin'] }, // Admin Customer Management
-        { label: 'Packages', icon: 'las la-table', to: 'packages', roles: ['sysadmin'] } // Admin Packages Management
+        { label: 'Dashboard', icon: 'las la-home', to: '/admin/dashboard', roles: ['sysadmin'] },
+        { label: 'Customers', icon: 'las la-users', to: '/admin/customer-management', roles: ['sysadmin'] },
+        { label: 'Packages', icon: 'las la-table', to: '/admin/packages', roles: ['sysadmin'] }
       ];
       return allItems.filter(item => item.roles.includes(this.userRole));
     },
-    filteredSystemNavItems() {
+    filteredSystemNavItems() { // Specific to Admin layout
       const allItems = [
-        { label: 'Settings', icon: 'las la-cog', to: 'settings', roles: ['sysadmin'] }, // Admin Settings
-        { label: 'Design System', icon: 'las la-palette', to: 'design', roles: ['sysadmin'] }, // Admin Design System
-        { label: 'My Dashboard', icon: 'las la-user-circle', to: '/customer/dashboard', roles: ['owner', 'staff'] }, // Customer Dashboard
-        { label: 'Customer Settings', icon: 'las la-cog', to: '/customer/settings', roles: ['owner', 'staff'] }, // Customer Settings
-        { label: 'Connected Accounts', icon: 'las la-plug', to: '/customer/connected-accounts', roles: ['owner', 'staff'] }, // Customer Connected Accounts
-        { label: 'Orders', icon: 'las la-receipt', to: '/customer/orders', roles: ['owner', 'staff'] }, // New Orders List page
-        { label: 'Message Templates', icon: 'las la-envelope', to: '/customer/message-templates', roles: ['owner', 'staff'] }, // New Message Templates page
-        { label: 'Suppliers', icon: 'las la-warehouse', to: '/customer/suppliers', roles: ['owner', 'staff'] } // New Suppliers List page
+        { label: 'Settings', icon: 'las la-cog', to: '/admin/settings', roles: ['sysadmin'] },
+        { label: 'Design System', icon: 'las la-palette', to: '/admin/design', roles: ['sysadmin'] }
       ];
       return allItems.filter(item => item.roles.includes(this.userRole));
     },
@@ -314,7 +308,6 @@ export default {
       if (savedLang) {
         this.currentLang = savedLang;
         if (this.$i18n) this.$i18n.locale = savedLang;
-        // Quasar language pack needs to be set manually here
         import(`quasar/lang/${savedLang}`).then(langConfig => {
           this.$q.lang.set(langConfig.default);
         }).catch(() => console.warn(`Failed to load Quasar lang: ${savedLang}`));
@@ -326,12 +319,7 @@ export default {
       this.mobileMoreMenuOpen = false;
       this.$q.localStorage.remove('token');
       this.$q.localStorage.remove('user');
-      // Determine redirect based on user role
-      if (this.userRole === 'sysadmin') {
-        this.$router.push('/admin-login');
-      } else {
-        this.$router.push('/customer-login');
-      }
+      this.$router.push('/admin/login'); // Always redirect to admin login from here
     }
   },
   created() {

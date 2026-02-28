@@ -121,7 +121,7 @@ export default {
 
         this.$q.localStorage.remove('pendingCustomerId');
         this.$q.localStorage.remove('pendingCustomerEmail');
-        this.$router.push('/customer-login'); // Redirect to customer login
+        this.$router.push('/customer/login'); // Redirect to customer login
       } catch (error) {
         let errorMessage = 'Failed to purchase package.';
         if (error.response && error.response.data && error.response.data.message) {

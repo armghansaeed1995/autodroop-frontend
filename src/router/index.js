@@ -56,17 +56,17 @@ export default defineRouter(function (/* { store, ssrContext } */) {
     const userRole = getUserRole();
 
     // Pages that don't require authentication but shouldn't be accessed if already logged in
-    const authPages = ['/admin-login', '/customer-login', '/register'];
+    const authPages = ['/admin/login', '/customer/login', '/register'];
 
     if (requiresAuth && !authenticated) {
       // If authentication is required and user is not logged in, redirect to the appropriate login page
       if (to.path.startsWith('/admin')) {
-        next('/admin-login');
+        next('/admin/login');
       } else if (to.path.startsWith('/customer')) {
-        next('/customer-login');
+        next('/customer/login');
       } else {
         // Default to customer login for other protected routes if not specified
-        next('/customer-login');
+        next('/customer/login');
       }
     } else if (authenticated && authPages.includes(to.path)) {
       // If user is already authenticated and tries to access login/register pages, redirect to dashboard based on role

@@ -3,8 +3,9 @@ import { LocalStorage } from 'quasar';
 import axios from 'axios';
 
 // Create a custom Axios instance named 'api'
+console.log("process.env.API_BASE_URL",process.env)
 const api = axios.create({
-  baseURL: process.env.API_BASE_URL // Use the environment variable
+  baseURL: process.env.API_BASE_URL
 });
 
 // Add a request interceptor to attach the JWT token

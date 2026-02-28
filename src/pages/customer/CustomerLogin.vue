@@ -103,7 +103,7 @@ export default {
       this.loading = true;
 
       try {
-        const response = await this.$api.post('/auth/customer-login', {
+        const response = await this.$api.post('/auth/customer/login', {
           email: this.email,
           password: this.password
         });
