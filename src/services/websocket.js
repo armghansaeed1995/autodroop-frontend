@@ -163,8 +163,8 @@ class WebSocketService {
       LocalStorage.set('token', token);
       LocalStorage.set('user', user);
     } else {
-      LocalStorage.removeItem('token');
-      LocalStorage.removeItem('user');
+      LocalStorage.remove('token');
+      LocalStorage.remove('user');
     }
   }
 

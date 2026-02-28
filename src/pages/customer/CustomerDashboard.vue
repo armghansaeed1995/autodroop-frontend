@@ -141,7 +141,7 @@ export default {
   name: 'PageCustomerDashboard',
   data() {
     return {
-      user: { // Will be populated from localStorage or API
+      user: {
         firstName: '',
         email: '',
         role: '',
@@ -189,7 +189,7 @@ export default {
     loadUserData() {
       const storedUser = this.$q.localStorage.getItem('user');
       if (storedUser) {
-        const parsedUser = JSON.parse(storedUser);
+        const parsedUser = storedUser;
         this.user.firstName = parsedUser.first_name || parsedUser.email.split('@')[0];
         this.user.email = parsedUser.email;
         this.user.role = parsedUser.role;
