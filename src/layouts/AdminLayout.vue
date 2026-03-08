@@ -255,6 +255,8 @@ export default {
       const allItems = [
         { label: 'Dashboard', icon: 'las la-home', to: '/admin/dashboard', roles: ['sysadmin'] },
         { label: 'Customers', icon: 'las la-users', to: '/admin/customer-management', roles: ['sysadmin'] },
+        { label: 'Global Regions', icon: 'las la-globe', to: '/admin/global-regions', roles: ['sysadmin'] },
+        { label: 'Global Templates', icon: 'las la-public', to: '/admin/global-templates', roles: ['sysadmin'] },
         { label: 'Packages', icon: 'las la-table', to: '/admin/packages', roles: ['sysadmin'] }
       ];
       return allItems.filter(item => item.roles.includes(this.userRole));

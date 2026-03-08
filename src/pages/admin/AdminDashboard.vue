@@ -75,6 +75,8 @@
 </template>
 
 <script>
+import { ref, onMounted } from 'vue';
+import { api } from 'boot/axios';
 import BaseChart from 'src/components/base/BaseChart.vue'
 
 export default {
@@ -82,14 +84,31 @@ export default {
   components: {
     BaseChart
   },
-  data() {
+  setup() {
+    const kpis = ref([
+      { title: 'Total Revenue', value: '$0', icon: 'las la-wallet', color: 'primary', trend: '+0%', trendUp: true },
+      { title: 'Active Regions', value: '0', icon: 'las la-globe', color: 'secondary', trend: 'Global', trendUp: true },
+      { title: 'Most Used Supplier', value: '...', icon: 'las la-truck', color: 'positive', trend: 'Live', trendUp: true },
+      { title: 'Total Profiles', value: '0', icon: 'las la-layer-group', color: 'warning', trend: 'Active', trendUp: true }
+    ]);
+
+    const fetchStats = async () => {
+      try {
+        const res = await api.get('/admin/analytics/stats');
+        const data = res.data;
+        
+        kpis.value[1].value = data.activeRegions;
+        kpis.value[2].value = data.mostUsedSupplier;
+        kpis.value[3].value = data.totalProfiles;
+      } catch (e) {
+        console.error('Failed to fetch admin stats');
+      }
+    };
+
+    onMounted(fetchStats);
+
     return {
-      kpis: [
-        { title: 'Total Revenue', value: '$45,231', icon: 'las la-wallet', color: 'primary', trend: '+20.1%', trendUp: true },
-        { title: 'New Users', value: '2,314', icon: 'las la-users', color: 'secondary', trend: '+15.2%', trendUp: true },
-        { title: 'Active Subs', value: '1,204', icon: 'las la-check-circle', color: 'positive', trend: '-2.1%', trendUp: false },
-        { title: 'Bounce Rate', value: '42.3%', icon: 'las la-chart-pie', color: 'warning', trend: '+4.5%', trendUp: false }
-      ],
+      kpis,
       activities: [
         { id: 1, title: 'New Order #4219', description: 'Michael Scott purchased Dunder Mifflin Premium Plan.', time: '5m ago', icon: 'las la-shopping-cart', color: 'primary' },
         { id: 2, title: 'Server Reboot', description: 'Automated maintenance completed successfully.', time: '2h ago', icon: 'las la-server', color: 'positive' },

@@ -23,6 +23,8 @@ const routes = [
       { path: 'packages', component: () => import('pages/admin/PackagesPage.vue'), meta: { requiresAuth: true, roles: ['sysadmin'] } },
       { path: 'design', component: () => import('pages/DesignShowcase.vue'), meta: { requiresAuth: true, roles: ['sysadmin'] } },
       { path: 'customer-management', component: () => import('pages/admin/CustomerManagement.vue'), meta: { requiresAuth: true, roles: ['sysadmin'] } },
+      { path: 'global-regions', component: () => import('pages/admin/GlobalRegions.vue'), meta: { requiresAuth: true, roles: ['sysadmin'] } },
+      { path: 'global-templates', component: () => import('pages/admin/GlobalTemplates.vue'), meta: { requiresAuth: true, roles: ['sysadmin'] } },
     ]
   },
 
@@ -34,6 +36,7 @@ const routes = [
     children: [
       { path: 'dashboard', component: () => import('pages/customer/CustomerDashboard.vue'), meta: { requiresAuth: true, roles: ['owner', 'staff'] } },
       { path: 'settings', component: () => import('pages/customer/SettingsPage.vue'), meta: { requiresAuth: true, roles: ['owner', 'staff'] } },
+      { path: 'ebay-settings', component: () => import('pages/customer/EbayAccountSettings.vue'), meta: { requiresAuth: true, roles: ['owner', 'staff'] } },
       { path: 'connected-accounts', component: () => import('pages/customer/ConnectedAccounts.vue'), meta: { requiresAuth: true, roles: ['owner', 'staff'] } },
       { path: 'product-drafts', component: () => import('pages/customer/ProductDrafts.vue'), meta: { requiresAuth: true, roles: ['owner', 'staff'] } },
       { path: 'orders', component: () => import('pages/customer/OrdersList.vue'), meta: { requiresAuth: true, roles: ['owner', 'staff'] } },

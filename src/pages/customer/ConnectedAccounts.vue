@@ -63,6 +63,16 @@
                 round
                 dense
                 color="primary"
+                icon="las la-cog"
+                @click="openSettings(account)"
+              >
+                <q-tooltip>Account Settings (Region/Supplier)</q-tooltip>
+              </q-btn>
+              <q-btn
+                flat
+                round
+                dense
+                color="primary"
                 icon="las la-sync"
                 @click="syncAccount(account.id)"
               >
@@ -185,6 +195,53 @@ export default {
         console.error('Error syncing account:', error);
       } finally {
         this.loading = false;
+      }
+    },
+
+    async openSettings(account) {
+      // Fetch options first
+      try {
+        const [regRes, supRes] = await Promise.all([
+          this.$api.get('/public/regions'),
+          this.$api.get('/suppliers')
+        ]);
+
+        const regions = regRes.data;
+        const suppliers = supRes.data;
+
+        this.$q.dialog({
+          title: 'Select Profile',
+          message: 'Choose the Region and Supplier to configure settings for:',
+          options: {
+            type: 'radio',
+            model: null,
+            items: regions.map(r => ({ label: `Region: ${r.name} (${r.country_code})`, value: r.country_code }))
+          },
+          cancel: true,
+          persistent: true
+        }).onOk(regionCode => {
+          this.$q.dialog({
+            title: 'Select Supplier',
+            options: {
+              type: 'radio',
+              model: null,
+              items: suppliers.map(s => ({ label: s.name, value: s.id }))
+            },
+            cancel: true,
+            persistent: true
+          }).onOk(supplierId => {
+            this.$router.push({
+              path: '/customer/ebay-settings',
+              query: {
+                accountId: account.id,
+                region: regionCode,
+                supplierId: supplierId
+              }
+            });
+          });
+        });
+      } catch (e) {
+        this.$q.notify({ color: 'negative', message: 'Failed to load options' });
       }
     },
 
