@@ -73,6 +73,23 @@
               </template>
             </q-input>
 
+            <q-select
+              filled
+              v-model="homeCountry"
+              :options="availableCountries"
+              label="Select your Country *"
+              emit-value
+              map-options
+              outlined
+              lazy-rules
+              :rules="[(val) => !!val || 'Please select a country']"
+              class="q-mb-md"
+            >
+              <template v-slot:prepend>
+                <q-icon name="las la-globe" />
+              </template>
+            </q-select>
+
             <q-input
               filled
               :type="isPwdVisible ? 'text' : 'password'"
@@ -169,6 +186,8 @@ export default {
       lastName: '',
       email: '',
       companyName: '',
+      homeCountry: null,
+      availableCountries: [],
       password: '',
       confirmPassword: '',
       isPwdVisible: false,
@@ -177,7 +196,21 @@ export default {
       loading: false
     }
   },
+  mounted() {
+    this.fetchCountries();
+  },
   methods: {
+    async fetchCountries() {
+      try {
+        const response = await this.$api.get('/public/regions');
+        this.availableCountries = response.data.map(r => ({
+          label: r.name,
+          value: r.country_code
+        }));
+      } catch (error) {
+        console.error('Error fetching countries:', error);
+      }
+    },
     async onSubmit() {
       // Secondary check for terms & conditions
       if (!this.acceptTerms) {
@@ -198,6 +231,7 @@ export default {
           lastName: this.lastName,
           email: this.email,
           companyName: this.companyName,
+          home_country: this.homeCountry,
           password: this.password,
           confirmPassword: this.confirmPassword // Though not sent to backend, keeping for local validation consistency
         });

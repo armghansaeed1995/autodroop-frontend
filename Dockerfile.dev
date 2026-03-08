@@ -19,4 +19,4 @@ EXPOSE 9000
 
 # Start the application in development mode
 # -H 0.0.0.0 is required for Docker
-CMD ["quasar", "dev"]
+CMD ["quasar", "dev", "-H", "0.0.0.0"]

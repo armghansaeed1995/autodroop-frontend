@@ -14,7 +14,7 @@
             label="Connect eBay Account"
             icon="lab la-ebay"
             unelevated
-            @click="connectEbayAccount"
+            @click="connectEbay"
           />
         </div>
       </q-card-section>
@@ -34,7 +34,7 @@
           icon="las la-plus"
           unelevated
           class="q-mt-md"
-          @click="connectEbayAccount"
+          @click="connectEbay"
         />
       </q-card-section>
 
@@ -45,20 +45,40 @@
             <q-icon v-else name="las la-plug" color="grey" size="24px" />
           </q-item-section>
           <q-item-section>
-            <q-item-label>{{ account.account_name }}</q-item-label>
-            <q-item-label caption>{{ account.platform.toUpperCase() }}</q-item-label>
+            <q-item-label class="text-weight-bold">{{ account.account_name }}</q-item-label>
+            <q-item-label caption>
+              <q-badge outline color="primary" :label="account.platform.toUpperCase()" />
+              <q-badge v-if="account.seller_status" color="green-2" text-color="green-9" class="q-ml-sm" :label="account.seller_status" />
+              <span v-if="account.store_plan" class="q-ml-sm text-grey-7">• {{ account.store_plan }}</span>
+            </q-item-label>
+            <q-item-label v-if="account.last_synced_at" caption class="q-mt-xs">
+              Stock: {{ account.stock_quantity }} items (${{ account.stock_value }}) •
+              Last synced: {{ new Date(account.last_synced_at).toLocaleString() }}
+            </q-item-label>
           </q-item-section>
           <q-item-section side>
-            <q-btn
-              flat
-              round
-              dense
-              color="negative"
-              icon="las la-trash-alt"
-              @click="disconnectAccount(account.id)"
-            >
-              <q-tooltip>Disconnect Account</q-tooltip>
-            </q-btn>
+            <div class="row q-gutter-sm">
+              <q-btn
+                flat
+                round
+                dense
+                color="primary"
+                icon="las la-sync"
+                @click="syncAccount(account.id)"
+              >
+                <q-tooltip>Sync Stats from eBay</q-tooltip>
+              </q-btn>
+              <q-btn
+                flat
+                round
+                dense
+                color="negative"
+                icon="las la-trash-alt"
+                @click="disconnectAccount(account.id)"
+              >
+                <q-tooltip>Disconnect Account</q-tooltip>
+              </q-btn>
+            </div>
           </q-item-section>
         </q-item>
       </q-list>
@@ -76,6 +96,27 @@ export default {
     };
   },
   mounted() {
+    // Check for success or error from eBay OAuth redirect
+    if (this.$route.query.success === 'true') {
+      this.$q.notify({
+        type: 'positive',
+        message: 'eBay account connected successfully!',
+        icon: 'las la-check',
+        position: 'top-right'
+      });
+      // Clean the URL so the toast doesn't show on refresh
+      this.$router.replace({ query: null });
+    } else if (this.$route.query.error) {
+      this.$q.notify({
+        type: 'negative',
+        message: this.$route.query.error,
+        icon: 'las la-exclamation-triangle',
+        position: 'top-right'
+      });
+      // Clean the URL
+      this.$router.replace({ query: null });
+    }
+
     this.fetchAccounts();
   },
   methods: {
@@ -96,13 +137,71 @@ export default {
         this.loading = false;
       }
     },
+
+    async connectEbay() {
+      this.loading = true;
+      try {
+        // Request the secure OAuth consent URL from the backend
+        const response = await this.$api.get('/ebay/auth-url');
+
+        if (response.data && response.data.url) {
+          // Redirect the user's browser to eBay for authentication.
+          // This leaves the Quasar app and goes to eBay's secure site.
+          //window.location.href = response.data.url;
+          window.open(response.data.url, '_blank');
+        } else {
+          throw new Error('Could not retrieve authentication URL.');
+        }
+      } catch (error) {
+        this.$q.notify({
+          type: 'negative',
+          message: error.response?.data?.message || 'Failed to start eBay connection.',
+          icon: 'las la-exclamation-triangle',
+          position: 'top-right'
+        });
+      } finally {
+        this.loading = false;
+      }
+    },
+
+    async syncAccount(id) {
+      this.loading = true;
+      try {
+        await this.$api.post(`/buyer-accounts/${id}/sync`);
+        this.$q.notify({
+          type: 'positive',
+          message: 'Account statistics synced successfully.',
+          icon: 'las la-check',
+          position: 'top-right'
+        });
+        await this.fetchAccounts();
+      } catch (error) {
+        this.$q.notify({
+          type: 'negative',
+          message: error.response?.data?.message || 'Failed to sync account statistics.',
+          icon: 'las la-exclamation-triangle',
+          position: 'top-right'
+        });
+        console.error('Error syncing account:', error);
+      } finally {
+        this.loading = false;
+      }
+    },
+
     async disconnectAccount(id) {
       this.$q.dialog({
         title: 'Confirm Disconnection',
-        message: 'Are you sure you want to disconnect this account? This cannot be undone.',
-        cancel: true,
-        persistent: true,
-        color: 'negative'
+        message: 'Are you sure? This will stop order syncing and inventory management for this account.',
+        cancel: {
+          label: 'Cancel',
+          flat: true
+        },
+        ok: {
+          label: 'Disconnect',
+          color: 'negative',
+          unelevated: true
+        },
+        persistent: true
       }).onOk(async () => {
         this.loading = true;
         try {
@@ -113,7 +212,7 @@ export default {
             icon: 'las la-check',
             position: 'top-right'
           });
-          this.accounts = this.accounts.filter(account => account.id !== id); // Remove locally
+          await this.fetchAccounts();
         } catch (error) {
           this.$q.notify({
             type: 'negative',
@@ -126,9 +225,6 @@ export default {
           this.loading = false;
         }
       });
-    },
-    connectEbayAccount() {
-      alert('Coming soon: eBay account connection functionality.');
     }
   }
 };

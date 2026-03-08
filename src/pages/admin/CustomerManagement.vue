@@ -147,6 +147,17 @@
               ]"
             />
 
+            <q-select
+              filled
+              v-model="editedCustomer.home_country"
+              :options="availableCountries"
+              label="Home Country *"
+              emit-value
+              map-options
+              lazy-rules
+              :rules="[(val) => !!val || 'Home country is required']"
+            />
+
             <!-- Package Selection -->
             <q-select
               filled
@@ -295,6 +306,7 @@ export default {
         company_name: '',
         vat_tax_id: '',
         email: '',
+        home_country: null,
         package_id: null,
         status: 'active',
         renew_date: null,
@@ -313,6 +325,7 @@ export default {
         company_name: '',
         vat_tax_id: '',
         email: '',
+        home_country: null,
         package_id: null,
         status: 'active',
         renew_date: null,
@@ -325,12 +338,14 @@ export default {
         user_password: '',
         user_confirm_password: ''
       },
-      statusOptions: ['active', 'pending', 'suspended', 'cancelled']
+      statusOptions: ['active', 'pending', 'suspended', 'cancelled'],
+      availableCountries: []
     }
   },
   async created() {
     await this.fetchCustomers();
     await this.fetchPackages();
+    await this.fetchCountries();
   },
   methods: {
     formatDate(dateVal) {
@@ -371,6 +386,17 @@ export default {
           position: 'top-right'
         });
         console.error('Error fetching packages:', error);
+      }
+    },
+    async fetchCountries() {
+      try {
+        const response = await this.$api.get('/public/regions');
+        this.availableCountries = response.data.map(r => ({
+          label: r.name,
+          value: r.country_code
+        }));
+      } catch (error) {
+        console.error('Error fetching countries:', error);
       }
     },
     addCustomer() {
