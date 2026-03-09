@@ -241,6 +241,7 @@ export default {
           });
         });
       } catch (e) {
+        console.error(e);
         this.$q.notify({ color: 'negative', message: 'Failed to load options' });
       }
     },

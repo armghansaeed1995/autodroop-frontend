@@ -1,52 +1,68 @@
 <template>
   <div class="message-template-editor">
-    <div class="text-subtitle1 text-weight-bold q-mb-md">Message Templates Configuration</div>
-    
+    <div class="column q-mb-xl">
+      <div class="text-h6 text-weight-bold tracking-tight">Auto Message Templates</div>
+      <div class="text-caption text-grey-6">Configure automatic messages sent to customers at different order stages.</div>
+    </div>
+
     <div class="row q-col-gutter-lg">
       <div v-for="type in messageTypes" :key="type.key" class="col-12">
-        <q-card flat bordered class="q-pa-md">
-          <div class="row items-center justify-between q-mb-sm">
-            <div class="row items-center">
-              <q-avatar size="32px" color="primary-1" text-color="primary" :icon="type.icon" class="q-mr-sm" />
-              <div class="text-subtitle2 text-weight-bold">{{ type.label }}</div>
+        <q-card flat class="message-card border transition-all shadow-hover">
+          <q-card-section class="q-pa-lg">
+            <div class="row items-center justify-between q-mb-md">
+              <div class="row items-center">
+                <div class="icon-box q-mr-md" :class="internalValue[type.statusKey] ? 'bg-primary-1' : 'bg-grey-2'">
+                  <q-icon :name="type.icon" :color="internalValue[type.statusKey] ? 'primary' : 'grey-6'" size="24px" />
+                </div>
+                <div>
+                  <div class="text-subtitle1 text-weight-bold">{{ type.label }}</div>
+                  <div class="text-caption text-grey-6" v-if="internalValue[type.statusKey]">This message is currently active.</div>
+                  <div class="text-caption text-grey-5 italic" v-else>This message is disabled.</div>
+                </div>
+              </div>
+              <q-toggle
+                v-model="internalValue[type.statusKey]"
+                label="Active"
+                color="primary"
+                class="text-weight-medium"
+                dense
+              />
             </div>
-            <q-toggle 
-              v-model="modelValue[type.statusKey]" 
-              label="Active" 
-              color="primary"
+
+            <q-input
+              v-model="internalValue[type.key]"
+              type="textarea"
+              filled
               dense
-              @update:model-value="$emit('update:modelValue', modelValue)"
+              rows="4"
+              :placeholder="'Write your ' + type.label.toLowerCase() + ' message here...'"
+              :disable="!internalValue[type.statusKey]"
+              class="modern-textarea"
             />
-          </div>
-          
-          <q-input
-            v-model="modelValue[type.key]"
-            type="textarea"
-            filled
-            dense
-            rows="3"
-            :placeholder="'Enter ' + type.label.toLowerCase() + ' message...'"
-            :disable="!modelValue[type.statusKey]"
-            @update:model-value="$emit('update:modelValue', modelValue)"
-          />
-          
-          <div class="bg-grey-1 q-pa-sm q-mt-sm rounded-sm border">
-            <div class="text-caption text-weight-bold text-grey-7 q-mb-xs">Variable Helper</div>
-            <div class="row q-gutter-x-sm">
-              <q-chip 
-                v-for="token in type.tokens || commonTokens" 
-                :key="token" 
-                dense 
-                outline 
-                size="xs" 
-                color="primary" 
-                class="cursor-pointer"
-                @click="insertToken(type.key, token)"
-              >
-                {{ token }}
-              </q-chip>
+
+            <div class="q-mt-md rounded-sm bg-grey-1 q-pa-sm border-dashed">
+              <div class="row items-center q-mb-xs">
+                <q-icon name="las la-terminal" color="grey-6" size="xs" class="q-mr-xs" />
+                <span class="text-caption text-weight-bold text-grey-7">Dynamic Variables</span>
+              </div>
+              <div class="row q-gutter-x-sm q-gutter-y-xs">
+                <q-chip
+                  v-for="token in type.tokens || commonTokens"
+                  :key="token"
+                  dense
+                  clickable
+                  outline
+                  size="sm"
+                  color="primary"
+                  class="token-chip bg-white"
+                  @click="insertToken(type.key, token)"
+                  :disable="!internalValue[type.statusKey]"
+                >
+                  {{ token }}
+                </q-chip>
+              </div>
             </div>
-          </div>
+          </q-card-section>
         </q-card>
       </div>
     </div>
@@ -66,6 +82,7 @@ export default {
   emits: ['update:modelValue'],
   data() {
     return {
+      internalValue: JSON.parse(JSON.stringify(this.modelValue || {})),
       commonTokens: ['{buyer_first_name}', '{order_id}', '{shop_name}'],
       messageTypes: [
         { key: 'msg_pending', statusKey: 'msg_pending_status', label: 'Order Pending', icon: 'las la-clock' },
@@ -78,24 +95,98 @@ export default {
       ]
     }
   },
+  watch: {
+    modelValue: {
+      handler(newVal) {
+        const currentStr = JSON.stringify(this.internalValue);
+        const nextStr = JSON.stringify(newVal || {});
+        if (currentStr !== nextStr) {
+          this.internalValue = JSON.parse(nextStr);
+        }
+      },
+      deep: true
+    },
+    internalValue: {
+      handler(newVal) {
+        const currentStr = JSON.stringify(this.modelValue);
+        const nextStr = JSON.stringify(newVal || {});
+        if (currentStr !== nextStr) {
+          this.$emit('update:modelValue', newVal);
+        }
+      },
+      deep: true
+    }
+  },
   methods: {
     insertToken(field, token) {
-      if (!this.modelValue[field]) this.modelValue[field] = '';
-      this.modelValue[field] += ` ${token}`;
-      this.$emit('update:modelValue', this.modelValue);
+      if (!this.internalValue[field]) {
+        this.internalValue[field] = '';
+      }
+      this.internalValue[field] += ` ${token}`;
     }
   }
 }
 </script>
 
 <style lang="scss" scoped>
-.rounded-sm {
-  border-radius: 4px;
-}
-.border {
-  border: 1px solid rgba(0, 0, 0, 0.05);
-}
-.bg-primary-1 {
-  background-color: rgba($primary, 0.05);
+.message-template-editor {
+  .message-card {
+    border-radius: 20px;
+    background: white;
+    &:hover {
+      border-color: $primary;
+    }
+  }
+
+  .icon-box {
+    width: 48px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 12px;
+  }
+
+  .modern-textarea {
+    :deep(.q-field__control) {
+      background: #f8fafc;
+      border-radius: 12px;
+      padding: 8px;
+      &:hover {
+        background: #f1f5f9;
+      }
+    }
+  }
+
+  .token-chip {
+    font-family: monospace;
+    font-weight: 600;
+    transition: all 0.2s ease;
+    &:hover:not(.q-chip--disabled) {
+      background: $primary !important;
+      color: white !important;
+      transform: translateY(-2px);
+    }
+  }
+
+  .border-dashed {
+    border: 1px dashed rgba(0,0,0,0.1);
+  }
+
+  .transition-all {
+    transition: all 0.3s ease;
+  }
+
+  .shadow-hover:hover {
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05) !important;
+  }
+
+  .tracking-tight {
+    letter-spacing: -0.025em;
+  }
+  
+  .bg-primary-1 {
+    background-color: rgba($primary, 0.08);
+  }
 }
 </style>

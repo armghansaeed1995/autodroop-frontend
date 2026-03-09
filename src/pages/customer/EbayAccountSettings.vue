@@ -7,7 +7,7 @@
         <div>
           <h1 class="text-h4 text-weight-bold q-my-none">Account Settings</h1>
           <p class="text-body2 text-grey-6 q-mt-xs">
-            Manage settings for <span class="text-primary text-weight-bold">{{ region }}</span> 
+            Manage settings for <span class="text-primary text-weight-bold">{{ region }}</span>
             on <span class="text-primary text-weight-bold">{{ supplierName }}</span>
           </p>
         </div>
@@ -223,7 +223,7 @@
             <q-tab-panel name="messages" class="q-pa-xl">
               <div class="max-width-800">
                 <div class="text-h6 q-mb-md">Customer Notification Templates</div>
-                
+
                 <div v-for="type in messageTypes" :key="type.key" class="q-mb-xl q-pa-md border rounded-sm">
                   <div class="row items-center justify-between q-mb-md">
                     <div class="row items-center">
@@ -242,7 +242,7 @@
                     :disable="!form.messages[type.statusKey]"
                   />
                   <div class="row q-gutter-x-sm q-mt-xs">
-                    <q-chip v-for="tag in ['{customer_name}', '{order_id}', '{product_name}']" :key="tag" 
+                    <q-chip v-for="tag in ['{customer_name}', '{order_id}', '{product_name}']" :key="tag"
                       dense outline size="xs" color="grey-7" class="cursor-pointer" @click="addTag(type.key, tag)">
                       {{ tag }}
                     </q-chip>
@@ -363,7 +363,7 @@
 </template>
 
 <script>
-import { ref, onMounted, reactive, computed } from 'vue';
+import { ref, onMounted, reactive } from 'vue';
 import { useRoute } from 'vue-router';
 import { useQuasar } from 'quasar';
 import { api } from 'boot/axios';
@@ -427,7 +427,7 @@ export default {
 
         const data = res.data;
         templateId.value = data.id;
-        
+
         form.general = data.GeneralSettings || {};
         form.pricing = data.PricingSettings || {};
         form.profit_tiers = data.PricingSettings?.ProfitTiers || [];
@@ -452,13 +452,14 @@ export default {
       saving.value = true;
       try {
         await api.put(`/buyer-accounts/settings-group/${templateId.value}`, form);
-        $q.notify({ 
-          color: 'positive', 
-          message: 'Settings saved successfully', 
+        $q.notify({
+          color: 'positive',
+          message: 'Settings saved successfully',
           icon: 'las la-check',
           position: 'top'
         });
       } catch (e) {
+        console.error(e);
         $q.notify({ color: 'negative', message: 'Failed to save settings' });
       } finally {
         saving.value = false;

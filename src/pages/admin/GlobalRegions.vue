@@ -25,12 +25,27 @@
         flat
         binary-state-sort
       >
-        <!-- Custom slot for Country Code -->
+        <!-- Custom slot for Country Code with Flag -->
         <template v-slot:body-cell-country_code="props">
           <q-td :props="props">
-            <q-chip outline color="primary" size="sm" class="text-weight-bold">
-              {{ props.value }}
-            </q-chip>
+            <div class="row items-center no-wrap">
+              <q-avatar size="24px" class="q-mr-sm shadow-1" v-if="props.row.flag_icon">
+                <img :src="`https://flagcdn.com/w40/${props.row.flag_icon.toLowerCase()}.png`" />
+              </q-avatar>
+              <q-chip outline color="primary" size="sm" class="text-weight-bold">
+                {{ props.value }}
+              </q-chip>
+            </div>
+          </q-td>
+        </template>
+
+        <!-- Custom slot for Currency Symbol -->
+        <template v-slot:body-cell-currency="props">
+          <q-td :props="props">
+            <div class="row items-center justify-center no-wrap">
+              <span class="text-weight-bold q-mr-xs">{{ props.row.currency_symbol || '' }}</span>
+              <span class="text-grey-7">{{ props.value }}</span>
+            </div>
           </q-td>
         </template>
 
@@ -85,7 +100,7 @@
 
     <!-- Create/Edit Dialog -->
     <q-dialog v-model="showDialog" persistent>
-      <q-card style="width: 500px; max-width: 90vw">
+      <q-card style="width: 600px; max-width: 90vw">
         <!-- Dialog Header -->
         <q-card-section class="row items-center q-pb-none">
           <div class="text-h6 text-weight-bold">
@@ -98,7 +113,8 @@
         <!-- Form Content -->
         <q-card-section class="q-pt-lg">
           <q-form @submit="saveRegion" class="row q-col-gutter-md">
-            <div class="col-12">
+            <!-- Basic Info -->
+            <div class="col-12 col-md-8">
               <q-input 
                 v-model="editForm.name" 
                 label="Region Name" 
@@ -108,7 +124,7 @@
                 :rules="[val => !!val || 'Name is required']"
               />
             </div>
-            <div class="col-6">
+            <div class="col-12 col-md-4">
               <q-input 
                 v-model="editForm.country_code" 
                 label="ISO Country Code" 
@@ -122,9 +138,17 @@
                   val => val.length === 2 || 'Must be 2 characters'
                 ]"
                 style="text-transform: uppercase"
-              />
+              >
+                <template v-slot:append v-if="editForm.country_code && editForm.country_code.length === 2">
+                  <q-avatar size="24px" class="shadow-1">
+                    <img :src="`https://flagcdn.com/w40/${editForm.country_code.toLowerCase()}.png`" />
+                  </q-avatar>
+                </template>
+              </q-input>
             </div>
-            <div class="col-6">
+
+            <!-- Currency & Flag -->
+            <div class="col-4">
               <q-input 
                 v-model="editForm.currency" 
                 label="Currency (ISO)" 
@@ -139,25 +163,79 @@
                 style="text-transform: uppercase"
               />
             </div>
+            <div class="col-4">
+              <q-input 
+                v-model="editForm.currency_symbol" 
+                label="Symbol" 
+                filled 
+                dense 
+                placeholder="$" 
+              />
+            </div>
+            <div class="col-4">
+              <q-input 
+                v-model="editForm.flag_icon" 
+                label="Flag Code" 
+                filled 
+                dense 
+                placeholder="us" 
+                hint="ISO 3166-1 alpha-2"
+              />
+            </div>
+
+            <!-- Amazon Details -->
+            <div class="col-12">
+              <div class="text-subtitle2 text-grey-8 q-mb-xs">Amazon Configuration</div>
+              <q-separator class="q-mb-md" />
+            </div>
+            <div class="col-12 col-md-6">
+              <q-input 
+                v-model="editForm.amazon_domain" 
+                label="Amazon Domain" 
+                filled 
+                dense 
+                placeholder="amazon.com" 
+              >
+                <template v-slot:prepend>
+                  <q-icon name="lab la-amazon" color="orange-9" />
+                </template>
+              </q-input>
+            </div>
+            <div class="col-12 col-md-6">
+              <q-input 
+                v-model="editForm.amazon_associate_id" 
+                label="Associate ID (Tag)" 
+                filled 
+                dense 
+                placeholder="my-tag-20" 
+              >
+                <template v-slot:prepend>
+                  <q-icon name="las la-id-badge" color="primary" />
+                </template>
+              </q-input>
+            </div>
+
             <div class="col-12">
               <q-input v-model="editForm.default_language" label="Default Language" filled dense placeholder="en-US" />
             </div>
-            <div class="col-12">
+
+            <!-- Toggles -->
+            <div class="col-12 col-md-6">
               <q-item tag="label" v-ripple class="border rounded-sm q-pa-sm">
                 <q-item-section>
                   <q-item-label class="text-weight-bold">Status</q-item-label>
-                  <q-item-label caption>Allow this region to be used in the system</q-item-label>
+                  <q-item-label caption>Active region</q-item-label>
                 </q-item-section>
                 <q-item-section side>
                   <q-toggle v-model="editForm.is_active" color="primary" />
                 </q-item-section>
               </q-item>
             </div>
-            <div class="col-12">
+            <div class="col-12 col-md-6">
               <q-item tag="label" v-ripple class="border rounded-sm q-pa-sm">
                 <q-item-section>
                   <q-item-label class="text-weight-bold">eBay Integration</q-item-label>
-                  <q-item-label caption>Mark as an official eBay marketplace</q-item-label>
+                  <q-item-label caption>Official eBay</q-item-label>
                 </q-item-section>
                 <q-item-section side>
                   <q-toggle v-model="editForm.is_ebay_region" color="primary" />
@@ -199,6 +277,8 @@ export default {
         { name: 'name', label: 'Region Name', field: 'name', align: 'left', sortable: true },
         { name: 'country_code', label: 'Code', field: 'country_code', align: 'center', sortable: true },
         { name: 'currency', label: 'Currency', field: 'currency', align: 'center' },
+        { name: 'amazon_domain', label: 'Amazon Domain', field: 'amazon_domain', align: 'left' },
+        { name: 'amazon_associate_id', label: 'Associate ID', field: 'amazon_associate_id', align: 'left' },
         { name: 'is_ebay_region', label: 'eBay', field: 'is_ebay_region', align: 'center' },
         { name: 'actions', label: 'Actions', field: 'actions', align: 'right' }
       ],
@@ -209,8 +289,13 @@ export default {
         name: '',
         country_code: '',
         currency: '',
+        currency_symbol: '',
+        flag_icon: '',
+        amazon_domain: '',
+        amazon_associate_id: '',
         default_language: 'en',
         is_ebay_region: true,
+        is_active: true,
         default_messages: {
           shipped: '',
           delivered: '',
@@ -220,6 +305,7 @@ export default {
           min_margin: 0,
           target_margin: 0
         },
+        default_automations: {},
         default_policies: {
           handling_time: 2,
           warehouse_city: '',
@@ -267,10 +353,16 @@ export default {
         name: '',
         country_code: '',
         currency: '',
+        currency_symbol: '',
+        flag_icon: '',
+        amazon_domain: '',
+        amazon_associate_id: '',
         default_language: 'en',
         is_ebay_region: true,
+        is_active: true,
         default_messages: { shipped: '', delivered: '', out_of_stock: '' },
         default_pricing_rules: { min_margin: 0, target_margin: 0 },
+        default_automations: {},
         default_policies: { handling_time: 2, warehouse_city: '', warehouse_zipcode: '', max_return_days: 30 }
       };
       this.showDialog = true;
@@ -285,6 +377,7 @@ export default {
       // Ensure JSON fields are initialized if they come back null from API
       if (!this.editForm.default_messages) this.editForm.default_messages = { shipped: '', delivered: '', out_of_stock: '' };
       if (!this.editForm.default_pricing_rules) this.editForm.default_pricing_rules = { min_margin: 0, target_margin: 0 };
+      if (!this.editForm.default_automations) this.editForm.default_automations = {};
       if (!this.editForm.default_policies) this.editForm.default_policies = { handling_time: 2, warehouse_city: '', warehouse_zipcode: '', max_return_days: 30 };
 
       this.showDialog = true;
@@ -293,6 +386,12 @@ export default {
     async saveRegion() {
       try {
         this.loading = true;
+        
+        // Ensure flag_icon defaults to country_code if not set
+        if (!this.editForm.flag_icon && this.editForm.country_code) {
+          this.editForm.flag_icon = this.editForm.country_code.toLowerCase();
+        }
+
         if (this.isEdit) {
           await this.$api.put(`/admin/global-regions/${this.editForm.id}`, this.editForm);
           this.$q.notify({ color: 'positive', message: 'Region updated successfully', icon: 'las la-check' });

@@ -96,12 +96,12 @@ export default {
       try {
         const res = await api.get('/admin/analytics/stats');
         const data = res.data;
-        
+
         kpis.value[1].value = data.activeRegions;
         kpis.value[2].value = data.mostUsedSupplier;
         kpis.value[3].value = data.totalProfiles;
       } catch (e) {
-        console.error('Failed to fetch admin stats');
+        console.error('Failed to fetch admin stats',e);
       }
     };
 
