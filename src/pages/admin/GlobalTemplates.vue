@@ -30,7 +30,7 @@
       <div class="col-12 col-md-4">
         <q-card flat class="selection-card" :class="isDark ? 'bg-surface-dark border-dark' : 'bg-white border-light'">
           <q-card-section>
-            <div class="text-overline text-primary q-mb-sm">Step 1: Region</div>
+            <div class="text-overline text-primary q-mb-sm">Step 1: Sales Region</div>
             <q-select
               v-model="selectedRegion"
               :options="regions"
@@ -122,6 +122,7 @@
               <q-tab name="pricing" icon="las la-tag" label="Prices & Stock" class="custom-tab" />
               <q-tab name="messages" icon="las la-comment-alt" label="Auto Messages" class="custom-tab" />
               <q-tab name="marketing" icon="las la-bullhorn" label="Marketing" class="custom-tab" />
+              <q-tab name="automations" icon="las la-robot" label="Automations" class="custom-tab" />
               <q-tab name="policies" icon="las la-shield-alt" label="Policies" class="custom-tab" />
               <q-tab name="tax" icon="las la-file-invoice-dollar" label="Taxes" class="custom-tab" />
             </q-tabs>
@@ -140,7 +141,6 @@
                     <q-avatar :color="isDark ? 'primary-900' : 'primary-1'" text-color="primary" icon="las la-cog" size="40px" class="q-mr-sm" />
                     <div class="text-h5 text-weight-bold">General Import Rules</div>
                   </div>
-                  <p class="text-body2 text-grey-6 q-mb-xl">Global defaults for product discovery and import from <b>{{ selectedSupplier }}</b>.</p>
 
                   <div class="row q-col-gutter-lg">
                     <div class="col-12 col-md-6">
@@ -310,6 +310,34 @@
               <q-card flat bordered class="settings-card shadow-sm" :class="isDark ? 'bg-surface-dark border-dark' : 'bg-white'">
                 <q-card-section class="q-pa-xl">
                   <message-template-editor v-model="form.messages" />
+
+                  <q-separator class="q-my-xl" />
+
+                  <div class="text-h6 q-mb-lg">Delivery Enhancements</div>
+                  <div class="row q-col-gutter-lg">
+                    <div class="col-12 col-md-6">
+                      <q-item tag="label" v-ripple class="toggle-item border rounded-sm" :class="isDark ? 'bg-grey-9' : 'bg-f8'">
+                        <q-item-section>
+                          <q-item-label class="text-weight-bold">Send Delivery Photo</q-item-label>
+                          <q-item-label caption>Attach proof of delivery if available</q-item-label>
+                        </q-item-section>
+                        <q-item-section side>
+                          <q-toggle v-model="form.messages.send_delivery_photo" color="primary" />
+                        </q-item-section>
+                      </q-item>
+                    </div>
+                    <div class="col-12 col-md-6">
+                      <q-item tag="label" v-ripple class="toggle-item border rounded-sm" :class="isDark ? 'bg-grey-9' : 'bg-f8'">
+                        <q-item-section>
+                          <q-item-label class="text-weight-bold">Send Location Note</q-item-label>
+                          <q-item-label caption>Include courier delivery notes</q-item-label>
+                        </q-item-section>
+                        <q-item-section side>
+                          <q-toggle v-model="form.messages.send_delivery_location_note" color="primary" />
+                        </q-item-section>
+                      </q-item>
+                    </div>
+                  </div>
                 </q-card-section>
               </q-card>
             </q-tab-panel>
@@ -320,9 +348,11 @@
                 <q-card-section class="q-pa-xl">
                   <div class="row items-center q-mb-lg">
                     <q-avatar :color="isDark ? 'primary-900' : 'primary-1'" text-color="primary" icon="las la-bullhorn" size="40px" class="q-mr-sm" />
-                    <div class="text-h5 text-weight-bold">Global Marketing & Discounts</div>
+                    <div class="text-h5 text-weight-bold">Marketing & Promotions</div>
                   </div>
-                  <div class="row q-col-gutter-lg">
+
+                  <div class="text-subtitle2 text-primary q-mb-md">Sponsorships</div>
+                  <div class="row q-col-gutter-lg q-mb-xl">
                     <div class="col-12 col-md-6">
                       <q-item tag="label" v-ripple class="toggle-item border rounded-sm" :class="isDark ? 'bg-grey-9' : 'bg-f8'">
                         <q-item-section>
@@ -335,6 +365,15 @@
                       </q-item>
                     </div>
                     <div class="col-12 col-md-6">
+                      <q-select v-model="form.marketing.sponsor_type" label="Sponsor Type" :options="['Fixed', 'Dynamic']" filled dense />
+                    </div>
+                  </div>
+
+                  <q-separator class="q-my-lg opacity-50" />
+
+                  <div class="text-subtitle2 text-primary q-mb-md">Discounts & Promos</div>
+                  <div class="row q-col-gutter-lg">
+                    <div class="col-12 col-md-6">
                       <q-item tag="label" v-ripple class="toggle-item border rounded-sm" :class="isDark ? 'bg-grey-9' : 'bg-f8'">
                         <q-item-section>
                           <q-item-label class="text-weight-bold">Volume Discounts</q-item-label>
@@ -346,57 +385,145 @@
                       </q-item>
                     </div>
                     <div class="col-12 col-md-6">
-                      <q-input v-model="form.marketing.sponsor_type" label="Sponsor Type" filled dense placeholder="COST_PER_CLICK" />
+                      <q-input v-model.number="form.marketing.promo_discount_percent" label="Promo Discount (%)" type="number" filled dense suffix="%" />
                     </div>
                     <div class="col-12 col-md-6">
-                      <q-input v-model.number="form.marketing.promo_discount_percent" label="Promo Discount (%)" type="number" filled dense suffix="%" />
+                      <q-input v-model="form.marketing.discount_code_all_items" label="Discount Code (All Items)" filled dense placeholder="e.g. SAVE10" />
+                    </div>
+                    <div class="col-12 col-md-6">
+                      <q-input v-model.number="form.marketing.discount_cap" label="Max Discount Cap" type="number" filled dense :prefix="currencySymbol" />
                     </div>
                   </div>
                 </q-card-section>
               </q-card>
             </q-tab-panel>
 
-            <!-- 5. Policies Settings -->
-            <q-tab-panel name="policies" class="q-pa-none">
+            <!-- 5. Automations -->
+            <q-tab-panel name="automations" class="q-pa-none">
               <q-card flat bordered class="settings-card" :class="isDark ? 'bg-surface-dark border-dark' : 'bg-white'">
                 <q-card-section class="q-pa-xl">
                   <div class="row items-center q-mb-lg">
-                    <q-avatar :color="isDark ? 'primary-900' : 'primary-1'" text-color="primary" icon="las la-shield-alt" size="40px" class="q-mr-sm" />
-                    <div class="text-h5 text-weight-bold">Default Policies</div>
+                    <q-avatar :color="isDark ? 'primary-900' : 'primary-1'" text-color="primary" icon="las la-robot" size="40px" class="q-mr-sm" />
+                    <div class="text-h5 text-weight-bold">Operational Automations</div>
                   </div>
+                  <p class="text-body2 text-grey-6 q-mb-xl">Configure background tasks that handle orders and inventory without manual intervention.</p>
+
                   <div class="row q-col-gutter-lg">
-                    <div class="col-12 col-md-6">
-                      <q-input v-model="form.policies.warehouse_city" label="Warehouse City" filled dense />
-                    </div>
-                    <div class="col-12 col-md-6">
-                      <q-input v-model="form.policies.warehouse_zipcode" label="Warehouse Zipcode" filled dense />
-                    </div>
-                    <div class="col-12 col-md-4">
-                      <q-input v-model.number="form.policies.handling_time" label="Handling Time (Days)" type="number" filled dense />
-                    </div>
-                    <div class="col-12 col-md-4">
-                      <q-input v-model.number="form.policies.max_return_days" label="Max Return Period (Days)" type="number" filled dense />
-                    </div>
-                    <div class="col-12 col-md-4">
-                      <q-input v-model.number="form.policies.default_delivery_days" label="Default Delivery Days" type="number" filled dense />
-                    </div>
                     <div class="col-12">
                       <q-item tag="label" v-ripple class="toggle-item border rounded-sm" :class="isDark ? 'bg-grey-9' : 'bg-f8'">
+                        <q-item-section avatar>
+                          <q-icon name="lab la-amazon" color="orange-9" size="md" />
+                        </q-item-section>
                         <q-item-section>
-                          <q-item-label class="text-weight-bold">Use Supplier Shipping Time</q-item-label>
-                          <q-item-label caption>Dynamic adjustment</q-item-label>
+                          <q-item-label class="text-weight-bold">Auto Order (Amazon)</q-item-label>
+                          <q-item-label caption>Automatically purchase products from Amazon after eBay sale (5-10 min delay)</q-item-label>
                         </q-item-section>
                         <q-item-section side>
-                          <q-toggle v-model="form.policies.use_supplier_shipping_time" color="primary" />
+                          <q-toggle v-model="form.automations.auto_order_enabled" color="primary" />
                         </q-item-section>
                       </q-item>
+                    </div>
+                    <div class="col-12 col-md-6">
+                      <q-input v-model.number="form.automations.auto_order_delay" label="Delay before purchase (Minutes)" type="number" filled dense suffix="min" hint="Recommended: 10 mins" />
                     </div>
                   </div>
                 </q-card-section>
               </q-card>
             </q-tab-panel>
 
-            <!-- 6. Tax Settings -->
+            <!-- 6. Policies Settings -->
+            <q-tab-panel name="policies" class="q-pa-none">
+              <q-card flat bordered class="settings-card" :class="isDark ? 'bg-surface-dark border-dark' : 'bg-white'">
+                <q-card-section class="q-pa-xl">
+                  <div class="row items-center justify-between q-mb-lg">
+                    <div class="row items-center">
+                      <q-avatar :color="isDark ? 'primary-900' : 'primary-1'" text-color="primary" icon="las la-shield-alt" size="40px" class="q-mr-sm" />
+                      <div class="text-h5 text-weight-bold">Business Policies</div>
+                    </div>
+                    <q-select
+                      v-model="selectedOriginRegion"
+                      :options="regions"
+                      option-label="name"
+                      option-value="id"
+                      label="Ship from Region"
+                      filled
+                      dense
+                      emit-value
+                      map-options
+                      style="min-width: 200px"
+                      @update:model-value="selectPolicy"
+                    >
+                      <template v-slot:prepend>
+                        <q-icon name="las la-map-marker-alt" color="primary" />
+                      </template>
+                    </q-select>
+                  </div>
+
+                  <div v-if="activePolicy">
+                    <div class="row items-center justify-between q-mb-md">
+                      <div class="text-subtitle2 text-primary">Configuration for Origin: {{ activePolicyRegionName }}</div>
+                      <q-toggle v-model="activePolicy.enabled" label="Enable this Origin" color="primary" />
+                    </div>
+
+                    <div :class="!activePolicy.enabled ? 'opacity-50 pointer-events-none' : ''">
+                      <!-- Shipping -->
+                      <div class="text-subtitle2 text-grey-7 q-mb-md">Shipping & Fulfillment</div>
+                      <div class="row q-col-gutter-lg q-mb-xl">
+                        <div class="col-12 col-md-6">
+                          <q-input v-model="activePolicy.warehouse_city" label="Warehouse City" filled dense />
+                        </div>
+                        <div class="col-12 col-md-6">
+                          <q-input v-model="activePolicy.warehouse_zipcode" label="Warehouse Zipcode" filled dense />
+                        </div>
+                        <div class="col-12 col-md-4">
+                          <q-input v-model.number="activePolicy.handling_time" label="Handling Time (Days)" type="number" filled dense />
+                        </div>
+                        <div class="col-12 col-md-4">
+                          <q-item tag="label" v-ripple class="toggle-item border rounded-sm" :class="isDark ? 'bg-grey-9' : 'bg-f8'">
+                            <q-item-section>
+                              <q-item-label class="text-weight-bold text-caption">Supplier Shipping Time</q-item-label>
+                            </q-item-section>
+                            <q-item-section side>
+                              <q-toggle v-model="activePolicy.use_supplier_shipping_time" color="primary" dense />
+                            </q-item-section>
+                          </q-item>
+                        </div>
+                        <div class="col-12 col-md-4">
+                          <q-input v-model.number="activePolicy.default_delivery_days" label="Default Delivery Days" type="number" filled dense :disable="activePolicy.use_supplier_shipping_time" />
+                        </div>
+                        <div class="col-12">
+                          <q-checkbox v-model="activePolicy.use_custom_shipping_policy" label="Use a custom eBay shipping policy (ID)" color="primary" />
+                          <q-input v-if="activePolicy.use_custom_shipping_policy" v-model="activePolicy.shipping_policy_id" label="eBay Shipping Policy ID" filled dense class="q-mt-sm" />
+                        </div>
+                      </div>
+
+                      <q-separator class="q-my-lg opacity-50" />
+
+                      <!-- Payment & Returns -->
+                      <div class="row q-col-gutter-xl">
+                        <div class="col-12 col-md-6">
+                          <div class="text-subtitle2 text-grey-7 q-mb-md">Payment Policy</div>
+                          <q-checkbox v-model="activePolicy.use_custom_payment_policy" label="Use custom payment policy (ID)" color="primary" />
+                          <q-input v-if="activePolicy.use_custom_payment_policy" v-model="activePolicy.payment_policy_id" label="eBay Payment Policy ID" filled dense class="q-mt-sm" />
+                          <div v-else class="text-caption text-grey-6 q-mt-sm">Droopify will auto-generate a default payment policy.</div>
+                        </div>
+                        <div class="col-12 col-md-6">
+                          <div class="text-subtitle2 text-grey-7 q-mb-md">Return Policy</div>
+                          <q-input v-model.number="activePolicy.max_return_days" label="Max Return Days" type="number" filled dense class="q-mb-md" />
+                          <q-checkbox v-model="activePolicy.use_custom_return_policy" label="Use custom return policy (ID)" color="primary" />
+                          <q-input v-if="activePolicy.use_custom_return_policy" v-model="activePolicy.return_policy_id" label="eBay Return Policy ID" filled dense class="q-mt-sm" />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div v-else class="row justify-center q-pa-xl">
+                    <div class="text-grey-6 italic">Please select an origin region from the dropdown above to configure policies.</div>
+                  </div>
+                </q-card-section>
+              </q-card>
+            </q-tab-panel>
+
+            <!-- 7. Tax Settings -->
             <q-tab-panel name="tax" class="q-pa-none">
               <q-card flat bordered class="settings-card" :class="isDark ? 'bg-surface-dark border-dark' : 'bg-white'">
                 <q-card-section class="q-pa-xl">
@@ -404,7 +531,8 @@
                     <q-avatar :color="isDark ? 'primary-900' : 'primary-1'" text-color="primary" icon="las la-file-invoice-dollar" size="40px" class="q-mr-sm" />
                     <div class="text-h5 text-weight-bold">Taxation & Invoicing</div>
                   </div>
-                  <div class="row q-col-gutter-lg">
+
+                  <div class="row q-col-gutter-lg q-mb-xl">
                     <div class="col-12 col-md-6">
                       <q-input v-model.number="form.tax.vat_percentage" label="VAT Percentage (%)" type="number" filled dense suffix="%" />
                     </div>
@@ -412,12 +540,27 @@
                       <q-item tag="label" v-ripple class="toggle-item border rounded-sm" :class="isDark ? 'bg-grey-9' : 'bg-f8'">
                         <q-item-section>
                           <q-item-label class="text-weight-bold">Auto-save Invoices</q-item-label>
-                          <q-item-label caption>Store supplier receipts</q-item-label>
+                          <q-item-label caption>Store supplier receipts automatically</q-item-label>
                         </q-item-section>
                         <q-item-section side>
                           <q-toggle v-model="form.tax.auto_save_invoices" color="primary" />
                         </q-item-section>
                       </q-item>
+                    </div>
+                  </div>
+
+                  <div class="invoice-msg-box">
+                    <div class="text-subtitle2 text-grey-7 q-mb-sm">Invoice Request Message</div>
+                    <q-input
+                      v-model="form.tax.invoice_request_message"
+                      type="textarea"
+                      filled
+                      dense
+                      rows="8"
+                      placeholder="Enter the message to send to suppliers when requesting an invoice..."
+                    />
+                    <div class="text-caption text-grey-6 q-mt-sm">
+                      <b>Example:</b> Good morning, I need the tax invoice for this purchase. Here are the tax details: [Company Name], [VAT Number], [SDI Code]...
                     </div>
                   </div>
                 </q-card-section>
@@ -470,10 +613,14 @@ export default {
     const regions = ref([]);
 
     const selectedRegion = ref(route.query.region || null);
-    const selectedSupplier = ref('Amazon'); // Default to Amazon as requested
+    const selectedSupplier = ref('Amazon');
     const loading = ref(false);
     const saving = ref(false);
     const templateId = ref(null);
+
+    // Origin Region Logic
+    const selectedOriginRegion = ref(null);
+    const activePolicy = ref(null);
 
     const form = reactive({
       general: {},
@@ -481,7 +628,8 @@ export default {
       profit_tiers: [],
       messages: {},
       marketing: {},
-      policies: {},
+      policies: [], // List of GlobalRegionPolicy
+      automations: {},
       tax: {}
     });
 
@@ -492,6 +640,11 @@ export default {
       return r ? (r.currency_symbol || r.currency) : '€';
     });
 
+    const activePolicyRegionName = computed(() => {
+      const r = regions.value.find(x => x.id === selectedOriginRegion.value);
+      return r ? r.name : '';
+    });
+
     const fetchInitialData = async () => {
       try {
         const regRes = await api.get('/admin/global-regions');
@@ -500,9 +653,9 @@ export default {
         if (selectedRegion.value && selectedSupplier.value) {
           loadTemplate();
         }
-      } catch (_e) {
-        console.error(_e);
-        $q.notify({ color: 'negative', message: 'Failed to load configuration data' });
+      } catch (e) {
+        console.error(e);
+        $q.notify({ color: 'negative', message: 'Failed to load regions' });
       }
     };
 
@@ -528,21 +681,34 @@ export default {
         form.pricing = data.GlobalPricingSetting || { variation_type: 'PERCENT' };
         form.profit_tiers = data.GlobalPricingSetting?.GlobalProfitTiers || [];
         form.messages = data.GlobalMessageSetting || {};
+        form.automations = data.GlobalAutomationSetting || { auto_order_enabled: false, auto_order_delay: 10 };
 
-        // Split Marketing and Tax from GlobalMarketingTaxSetting
         form.marketing = {
           auto_sponsor: data.GlobalMarketingTaxSetting?.auto_sponsor || false,
-          sponsor_type: data.GlobalMarketingTaxSetting?.sponsor_type || '',
+          sponsor_type: data.GlobalMarketingTaxSetting?.sponsor_type || 'COST_PER_CLICK',
           volume_discount_status: data.GlobalMarketingTaxSetting?.volume_discount_status || false,
-          promo_discount_percent: data.GlobalMarketingTaxSetting?.promo_discount_percent || 0
+          promo_discount_percent: data.GlobalMarketingTaxSetting?.promo_discount_percent || 0,
+          discount_code_all_items: data.GlobalMarketingTaxSetting?.discount_code_all_items || '',
+          discount_cap: data.GlobalMarketingTaxSetting?.discount_cap || 0
         };
 
         form.tax = {
           vat_percentage: data.GlobalMarketingTaxSetting?.vat_percentage || 0,
-          auto_save_invoices: data.GlobalMarketingTaxSetting?.auto_save_invoices || false
+          auto_save_invoices: data.GlobalMarketingTaxSetting?.auto_save_invoices || false,
+          invoice_request_message: data.GlobalMarketingTaxSetting?.invoice_request_message || ''
         };
 
-        form.policies = data.GlobalPolicySetting || {};
+        form.policies = data.GlobalRegionPolicies || [];
+
+        // Auto-select current region as origin if available
+        const currentOrigin = form.policies.find(p => p.origin_region_id === regionObj.id);
+        if (currentOrigin) {
+          selectedOriginRegion.value = currentOrigin.origin_region_id;
+          activePolicy.value = currentOrigin;
+        } else if (form.policies.length > 0) {
+          selectedOriginRegion.value = form.policies[0].origin_region_id;
+          activePolicy.value = form.policies[0];
+        }
 
       } catch (e) {
         console.error(e);
@@ -553,6 +719,28 @@ export default {
       }
     };
 
+    const selectPolicy = (regionId) => {
+      let policy = form.policies.find(p => p.origin_region_id === regionId);
+      if (!policy) {
+        // Create a new policy object locally if it doesn't exist in the list
+        policy = {
+          origin_region_id: regionId,
+          enabled: false,
+          warehouse_city: '',
+          warehouse_zipcode: '',
+          handling_time: 2,
+          use_supplier_shipping_time: true,
+          default_delivery_days: 15,
+          use_custom_shipping_policy: false,
+          use_custom_payment_policy: false,
+          use_custom_return_policy: false,
+          max_return_days: 30
+        };
+        form.policies.push(policy);
+      }
+      activePolicy.value = policy;
+    };
+
     const saveTemplate = async () => {
       saving.value = true;
       try {
@@ -561,6 +749,7 @@ export default {
           pricing: form.pricing,
           profit_tiers: form.profit_tiers,
           messages: form.messages,
+          automations: form.automations,
           policies: form.policies,
           marketing_tax: {
             ...form.marketing,
@@ -575,9 +764,9 @@ export default {
           icon: 'las la-check-circle',
           position: 'top'
         });
-      } catch (_e) {
-        console.error(_e);
-        $q.notify({ color: 'negative', message: 'Failed to update Master Template' });
+      } catch (e) {
+        console.log(e)
+        $q.notify({ color: 'negative', message: 'Failed to update settings.' });
       } finally {
         saving.value = false;
       }
@@ -590,6 +779,9 @@ export default {
       regions,
       selectedRegion,
       selectedSupplier,
+      selectedOriginRegion,
+      activePolicy,
+      activePolicyRegionName,
       loading,
       saving,
       templateId,
@@ -597,6 +789,7 @@ export default {
       currencySymbol,
       isDark,
       loadTemplate,
+      selectPolicy,
       saveTemplate
     };
   }
@@ -754,4 +947,7 @@ export default {
 
 .border-dark { border-color: rgba(255,255,255,0.1) !important; }
 .border-light { border-color: rgba(0,0,0,0.05) !important; }
+
+.opacity-50 { opacity: 0.5; }
+.pointer-events-none { pointer-events: none; }
 </style>

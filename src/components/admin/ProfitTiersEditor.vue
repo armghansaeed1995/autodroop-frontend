@@ -198,15 +198,19 @@ export default {
   }
 
   .modern-table {
-    background: white;
+    background: transparent;
     thead tr th {
-      background: #f8fafc;
+      background: rgba(0, 0, 0, 0.03);
       color: #64748b;
       font-weight: 700;
       text-transform: uppercase;
       font-size: 0.75rem;
       letter-spacing: 0.05em;
       padding: 16px;
+      body.body--dark & {
+        background: rgba(255, 255, 255, 0.05);
+        color: #94a3b8;
+      }
     }
   }
 
@@ -214,10 +218,17 @@ export default {
     :deep(.q-field__control) {
       height: 40px;
       min-height: 40px;
-      background: #f1f5f9;
+      background: rgba(0, 0, 0, 0.03);
       border: 1px solid transparent;
+      transition: all 0.2s ease;
       &:hover {
-        background: #e2e8f0;
+        background: rgba(0, 0, 0, 0.05);
+      }
+      body.body--dark & {
+        background: rgba(255, 255, 255, 0.05);
+        &:hover {
+          background: rgba(255, 255, 255, 0.08);
+        }
       }
     }
     :deep(.q-field__marginal) {
@@ -228,7 +239,10 @@ export default {
   .tier-row {
     transition: background 0.2s ease;
     &:hover {
-      background: #f8fafc;
+      background: rgba(0, 0, 0, 0.01);
+      body.body--dark & {
+        background: rgba(255, 255, 255, 0.02);
+      }
       .delete-btn {
         opacity: 1;
       }
@@ -245,9 +259,12 @@ export default {
   }
 
   .modern-toggle {
-    background: #e2e8f0;
+    background: rgba(0, 0, 0, 0.05);
     border-radius: 8px;
     padding: 2px;
+    body.body--dark & {
+      background: rgba(255, 255, 255, 0.1);
+    }
     :deep(.q-btn) {
       border-radius: 6px;
       padding: 4px 12px;
@@ -256,6 +273,10 @@ export default {
 
   .info-box {
     border: 1px solid rgba(0,0,0,0.05);
+    body.body--dark & {
+      border-color: rgba(255,255,255,0.05);
+      background: rgba(255,255,255,0.02) !important;
+    }
   }
 
   .tracking-tight {

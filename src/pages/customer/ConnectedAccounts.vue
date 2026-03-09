@@ -199,19 +199,13 @@ export default {
     },
 
     async openSettings(account) {
-      // Fetch options first
       try {
-        const [regRes, supRes] = await Promise.all([
-          this.$api.get('/public/regions'),
-          this.$api.get('/suppliers')
-        ]);
-
+        const regRes = await this.$api.get('/public/regions');
         const regions = regRes.data;
-        const suppliers = supRes.data;
 
         this.$q.dialog({
           title: 'Select Profile',
-          message: 'Choose the Region and Supplier to configure settings for:',
+          message: 'Choose the Sales Region and Supplier to configure settings for:',
           options: {
             type: 'radio',
             model: null,
@@ -224,25 +218,25 @@ export default {
             title: 'Select Supplier',
             options: {
               type: 'radio',
-              model: null,
-              items: suppliers.map(s => ({ label: s.name, value: s.id }))
+              model: this.$SUPPLIERS[0],
+              items: this.$SUPPLIERS.map(s => ({ label: s, value: s }))
             },
             cancel: true,
             persistent: true
-          }).onOk(supplierId => {
+          }).onOk(supplierName => {
             this.$router.push({
               path: '/customer/ebay-settings',
               query: {
                 accountId: account.id,
                 region: regionCode,
-                supplierId: supplierId
+                supplierName: supplierName
               }
             });
           });
         });
       } catch (e) {
         console.error(e);
-        this.$q.notify({ color: 'negative', message: 'Failed to load options' });
+        this.$q.notify({ color: 'negative', message: 'Failed to load regions' });
       }
     },
 

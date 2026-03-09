@@ -132,7 +132,7 @@ export default {
 .message-template-editor {
   .message-card {
     border-radius: 20px;
-    background: white;
+    background: transparent;
     &:hover {
       border-color: $primary;
     }
@@ -145,15 +145,27 @@ export default {
     align-items: center;
     justify-content: center;
     border-radius: 12px;
+    &.bg-grey-2 {
+      body.body--dark & {
+        background: rgba(255, 255, 255, 0.05) !important;
+      }
+    }
   }
 
   .modern-textarea {
     :deep(.q-field__control) {
-      background: #f8fafc;
+      background: rgba(0, 0, 0, 0.02);
       border-radius: 12px;
       padding: 8px;
+      transition: all 0.2s ease;
       &:hover {
-        background: #f1f5f9;
+        background: rgba(0, 0, 0, 0.04);
+      }
+      body.body--dark & {
+        background: rgba(255, 255, 255, 0.05);
+        &:hover {
+          background: rgba(255, 255, 255, 0.08);
+        }
       }
     }
   }
@@ -162,6 +174,9 @@ export default {
     font-family: monospace;
     font-weight: 600;
     transition: all 0.2s ease;
+    body.body--dark & {
+      background: rgba(255, 255, 255, 0.05) !important;
+    }
     &:hover:not(.q-chip--disabled) {
       background: $primary !important;
       color: white !important;
@@ -171,6 +186,10 @@ export default {
 
   .border-dashed {
     border: 1px dashed rgba(0,0,0,0.1);
+    body.body--dark & {
+      border-color: rgba(255,255,255,0.1);
+      background: rgba(255, 255, 255, 0.02) !important;
+    }
   }
 
   .transition-all {
