@@ -420,33 +420,77 @@
                         <div class="col-12 col-md-4">
                           <q-input v-model.number="activePolicy.default_delivery_days" label="Default Delivery Days" type="number" filled dense :disable="activePolicy.use_supplier_shipping_time" />
                         </div>
-                        <div class="col-12">
-                          <q-checkbox v-model="activePolicy.use_custom_shipping_policy" label="Use a custom eBay shipping policy (ID)" color="primary" />
-                          <q-input v-if="activePolicy.use_custom_shipping_policy" v-model="activePolicy.shipping_policy_id" label="eBay Shipping Policy ID" filled dense class="q-mt-sm" />
-                        </div>
                       </div>
 
                       <q-separator class="q-my-lg opacity-50" />
 
-                      <!-- Payment & Returns -->
+                      <!-- Return days -->
                       <div class="row q-col-gutter-xl">
-                        <div class="col-12 col-md-6">
-                          <div class="text-subtitle2 text-grey-7 q-mb-md">Payment Policy</div>
-                          <q-checkbox v-model="activePolicy.use_custom_payment_policy" label="Use custom payment policy (ID)" color="primary" />
-                          <q-input v-if="activePolicy.use_custom_payment_policy" v-model="activePolicy.payment_policy_id" label="eBay Payment Policy ID" filled dense class="q-mt-sm" />
-                          <div v-else class="text-caption text-grey-6 q-mt-sm">Droopify will auto-generate a default payment policy.</div>
-                        </div>
-                        <div class="col-12 col-md-6">
+                        <div class="col-12 col-md-12">
                           <div class="text-subtitle2 text-grey-7 q-mb-md">Return Policy</div>
                           <q-input v-model.number="activePolicy.max_return_days" label="Max Return Days" type="number" filled dense class="q-mb-md" />
-                          <q-checkbox v-model="activePolicy.use_custom_return_policy" label="Use custom return policy (ID)" color="primary" />
-                          <q-input v-if="activePolicy.use_custom_return_policy" v-model="activePolicy.return_policy_id" label="eBay Return Policy ID" filled dense class="q-mt-sm" />
                         </div>
                       </div>
                     </div>
                   </div>
                   <div v-else class="row justify-center q-pa-xl">
-                    <div class="text-grey-6 italic">Please select an origin region from the dropdown above to configure policies.</div>
+                    <div class="text-grey-6 italic">Please select an origin region from the dropdown above to configure regional handling rules.</div>
+                  </div>
+
+                  <q-separator class="q-my-xl" />
+
+                  <!-- eBay Business Policies Section -->
+                  <div class="row items-center justify-between q-mb-lg">
+                    <div class="row items-center">
+                      <q-avatar :color="isDark ? 'primary-900' : 'primary-1'" text-color="primary" icon="lab la-ebay" size="40px" class="q-mr-sm" />
+                      <div class="text-h5 text-weight-bold">eBay Business Policies</div>
+                    </div>
+                    <div class="row q-gutter-sm">
+                      <q-btn outline color="primary" icon="las la-plus" label="Shipping" size="sm" @click="addEbayPolicy('shipping')" />
+                      <q-btn outline color="primary" icon="las la-plus" label="Return" size="sm" @click="addEbayPolicy('return')" />
+                      <q-btn outline color="primary" icon="las la-plus" label="Payment" size="sm" @click="addEbayPolicy('payment')" />
+                    </div>
+                  </div>
+
+                  <div v-if="form.ebay_policies.length > 0">
+                    <q-list bordered separator class="rounded-sm overflow-hidden" :class="isDark ? 'bg-grey-9' : 'bg-f8'">
+                      <q-item v-for="(policy, index) in form.ebay_policies" :key="index" class="q-py-md">
+                        <q-item-section avatar>
+                          <q-chip
+                            :color="policy.type === 'shipping' ? 'blue-1' : (policy.type === 'return' ? 'green-1' : 'purple-1')"
+                            :text-color="policy.type === 'shipping' ? 'blue' : (policy.type === 'return' ? 'green' : 'purple')"
+                            size="sm"
+                            class="text-weight-bold text-uppercase"
+                          >
+                            {{ policy.type }}
+                          </q-chip>
+                        </q-item-section>
+                        <q-item-section>
+                          <div class="row q-col-gutter-sm">
+                            <div class="col-12 col-md-5">
+                              <q-input v-model="policy.name" label="Policy Name" filled dense />
+                            </div>
+                            <div class="col-12 col-md-5">
+                              <q-input v-model="policy.ebay_policy_id" label="eBay Policy ID" filled dense placeholder="Enter ID from eBay" />
+                            </div>
+                            <div class="col-12 col-md-2 flex items-center">
+                              <q-checkbox v-model="policy.is_default" label="Default" @update:model-value="val => val && setDefaultEbayPolicy(index, policy.type)" />
+                            </div>
+                          </div>
+                        </q-item-section>
+                        <q-item-section side>
+                          <div class="row items-center q-gutter-x-sm">
+                            <q-btn flat round color="primary" icon="las la-edit" size="sm" @click="editEbayPolicy(index)">
+                              <q-tooltip>Edit Details</q-tooltip>
+                            </q-btn>
+                            <q-btn flat round color="negative" icon="las la-trash-alt" size="sm" @click="removeEbayPolicy(index)" />
+                          </div>
+                        </q-item-section>
+                      </q-item>
+                    </q-list>
+                  </div>
+                  <div v-else class="text-center q-pa-lg border-dashed rounded-sm text-grey-6">
+                    No eBay policies defined for this profile. Use the buttons above to add policies.
                   </div>
                 </q-card-section>
               </q-card>
@@ -496,6 +540,291 @@
         </div>
       </div>
     </div>
+    <!-- Policy Editing Dialog -->
+    <q-dialog v-model="policyDialog" persistent backdrop-filter="blur(4px)">
+      <q-card style="width: 700px; max-width: 90vw; border-radius: 20px;">
+        <q-card-section class="row items-center q-pb-none">
+          <div class="text-h6 text-weight-bold">Configure eBay {{ editingPolicy?.type }} Policy</div>
+          <q-space />
+          <q-btn icon="close" flat round dense v-close-popup />
+        </q-card-section>
+
+        <q-card-section class="q-pa-lg" v-if="editingPolicy">
+          <div class="row q-col-gutter-md">
+            <!-- Rule Name & Description -->
+            <div class="col-12">
+              <q-input 
+                filled 
+                v-model="editingPolicy.name" 
+                label="Rule Name" 
+                hint="Example: All returns must be made within 30 days"
+                counter
+                maxlength="64"
+                class="q-mb-md"
+              />
+            </div>
+            <div class="col-12">
+              <q-input 
+                filled 
+                v-model="editingPolicy.description" 
+                label="Description (optional)" 
+                type="textarea"
+                rows="2"
+                hint="Additional text to help you identify the contents of the rule"
+                counter
+                maxlength="250"
+                class="q-mb-md"
+              />
+            </div>
+            <div class="col-12">
+              <q-input 
+                filled 
+                v-model="editingPolicy.ebay_policy_id" 
+                label="eBay Policy ID (from eBay Portal)" 
+                placeholder="e.g. 123456789"
+              />
+            </div>
+
+            <!-- Specific Fields for Return Policy -->
+            <template v-if="editingPolicy.type === 'return'">
+              <q-separator class="col-12 q-my-md" />
+              
+              <div class="col-12">
+                <div class="text-subtitle1 text-weight-bold">National returns</div>
+                <q-checkbox v-model="editingPolicy.details.accept_returns_national" label="Accept returns" color="primary" />
+                <div class="text-caption text-grey-6 q-mb-sm">Allow returns for items purchased domestically.</div>
+                
+                <div class="row q-col-gutter-sm" v-if="editingPolicy.details.accept_returns_national">
+                  <div class="col-6">
+                    <q-select 
+                      filled 
+                      dense 
+                      v-model="editingPolicy.details.return_period_national" 
+                      label="Allowed within"
+                      :options="[
+                        { label: '30 days', value: 'DAYS_30' },
+                        { label: '60 days', value: 'DAYS_60' }
+                      ]"
+                      emit-value
+                      map-options
+                    />
+                  </div>
+                  <div class="col-6">
+                    <q-select 
+                      filled 
+                      dense 
+                      v-model="editingPolicy.details.return_shipping_cost_payer_national" 
+                      label="Return costs paid by"
+                      :options="[
+                        { label: 'Free for the buyer, you pay', value: 'SELLER' },
+                        { label: 'Buyer', value: 'BUYER' }
+                      ]"
+                      emit-value
+                      map-options
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <q-separator class="col-12 q-my-md" />
+
+              <div class="col-12">
+                <div class="text-subtitle1 text-weight-bold">International Returns</div>
+                <q-checkbox v-model="editingPolicy.details.accept_returns_international" label="Accept returns" color="primary" />
+                <div class="text-caption text-grey-6 q-mb-sm">Allow returns on items purchased abroad.</div>
+                
+                <div class="row q-col-gutter-sm" v-if="editingPolicy.details.accept_returns_international">
+                  <div class="col-6">
+                    <q-select 
+                      filled 
+                      dense 
+                      v-model="editingPolicy.details.return_period_international" 
+                      label="Allowed within"
+                      :options="[
+                        { label: '30 days', value: 'DAYS_30' },
+                        { label: '60 days', value: 'DAYS_60' }
+                      ]"
+                      emit-value
+                      map-options
+                    />
+                  </div>
+                  <div class="col-6">
+                    <q-select 
+                      filled 
+                      dense 
+                      v-model="editingPolicy.details.return_shipping_cost_payer_international" 
+                      label="Return costs paid by"
+                      :options="[
+                        { label: 'Free for the buyer, you pay', value: 'SELLER' },
+                        { label: 'Buyer', value: 'BUYER' }
+                      ]"
+                      emit-value
+                      map-options
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <q-separator class="col-12 q-my-md" />
+
+              <div class="col-12">
+                <div class="text-subtitle1 text-weight-bold">Return Policy Details</div>
+                <q-input 
+                  filled 
+                  v-model="editingPolicy.details.return_policy_details" 
+                  label="More details on return conditions (optional)" 
+                  type="textarea"
+                  rows="4"
+                  placeholder="The customer will receive a full refund if he returns the product within the indicated time limit..."
+                  counter
+                  maxlength="8000"
+                />
+              </div>
+            </template>
+
+            <!-- Specific Fields for Payment Policy -->
+            <template v-else-if="editingPolicy.type === 'payment'">
+              <q-separator class="col-12 q-my-md" />
+              <div class="col-12">
+                <div class="text-subtitle1 text-weight-bold q-mb-sm">Payment services managed by eBay</div>
+                <q-item tag="label" v-ripple class="border rounded-sm bg-grey-1">
+                  <q-item-section>
+                    <q-item-label class="text-weight-bold">Require immediate payment</q-item-label>
+                    <q-item-label caption>When a buyer uses the Buy It Now option</q-item-label>
+                  </q-item-section>
+                  <q-item-section side>
+                    <q-checkbox v-model="editingPolicy.details.require_immediate_payment" color="primary" />
+                  </q-item-section>
+                </q-item>
+              </div>
+            </template>
+
+            <!-- Specific Fields for Shipping Policy -->
+            <template v-else-if="editingPolicy.type === 'shipping'">
+              <q-separator class="col-12 q-my-md" />
+              
+              <div class="col-12">
+                <div class="row items-center justify-between q-mb-sm">
+                  <div class="text-subtitle1 text-weight-bold">Domestic Shipping</div>
+                  <q-btn flat round color="primary" icon="add" size="sm" @click="addShippingOption(false)">
+                    <q-tooltip>Add Service</q-tooltip>
+                  </q-btn>
+                </div>
+
+                <div v-if="fetchingServices" class="text-center q-pa-md">
+                  <q-spinner color="primary" size="sm" />
+                  <span class="q-ml-sm text-grey-6">Loading eBay services...</span>
+                </div>
+                
+                <div v-else class="q-gutter-y-md">
+                  <div v-for="(opt, idx) in editingPolicy.details.domestic_options" :key="idx" class="border rounded-sm q-pa-sm relative-position">
+                    <q-btn flat round color="negative" icon="close" size="xs" class="absolute-top-right" @click="removeShippingOption(idx, false)" />
+                    
+                    <div class="row q-col-gutter-sm">
+                      <div class="col-12 col-md-8">
+                        <q-select 
+                          filled 
+                          dense 
+                          v-model="opt.service_name" 
+                          label="Shipping Service"
+                          :options="domesticServices"
+                          option-label="description"
+                          option-value="service_name"
+                          emit-value
+                          map-options
+                        />
+                      </div>
+                      <div class="col-12 col-md-4 flex items-center">
+                        <q-checkbox v-model="opt.free_shipping" label="Free Shipping" />
+                      </div>
+                      <template v-if="!opt.free_shipping">
+                        <div class="col-6">
+                          <q-input filled dense v-model.number="opt.shipping_cost" label="Cost (€)" type="number" prefix="€" />
+                        </div>
+                        <div class="col-6">
+                          <q-input filled dense v-model.number="opt.additional_cost" label="Each add. (€)" type="number" prefix="€" />
+                        </div>
+                      </template>
+                    </div>
+                  </div>
+                  <div v-if="editingPolicy.details.domestic_options.length === 0" class="text-center q-pa-md border-dashed rounded-sm text-grey-6">
+                    No domestic services added.
+                  </div>
+                </div>
+              </div>
+
+              <q-separator class="col-12 q-my-md" />
+
+              <div class="col-12">
+                <div class="row items-center justify-between q-mb-sm">
+                  <div class="text-subtitle1 text-weight-bold">International Shipping</div>
+                  <q-btn flat round color="primary" icon="add" size="sm" @click="addShippingOption(true)">
+                    <q-tooltip>Add Service</q-tooltip>
+                  </q-btn>
+                </div>
+                
+                <div class="q-gutter-y-md">
+                  <div v-for="(opt, idx) in editingPolicy.details.international_options" :key="idx" class="border rounded-sm q-pa-sm relative-position">
+                    <q-btn flat round color="negative" icon="close" size="xs" class="absolute-top-right" @click="removeShippingOption(idx, true)" />
+                    
+                    <div class="row q-col-gutter-sm">
+                      <div class="col-12 col-md-12">
+                        <q-select 
+                          filled 
+                          dense 
+                          v-model="opt.service_name" 
+                          label="International Service"
+                          :options="internationalServices"
+                          option-label="description"
+                          option-value="service_name"
+                          emit-value
+                          map-options
+                        />
+                      </div>
+                      <div class="col-6">
+                        <q-input filled dense v-model.number="opt.shipping_cost" label="Cost (€)" type="number" prefix="€" />
+                      </div>
+                      <div class="col-6">
+                        <q-input filled dense v-model.number="opt.additional_cost" label="Each add. (€)" type="number" prefix="€" />
+                      </div>
+                    </div>
+                  </div>
+                  <div v-if="editingPolicy.details.international_options.length === 0" class="text-center q-pa-lg border-dashed rounded-sm text-grey-6">
+                    No international services added.
+                  </div>
+                </div>
+              </div>
+
+              <q-separator class="col-12 q-my-md" />
+
+              <div class="col-12">
+                <q-input 
+                  filled 
+                  dense 
+                  v-model.number="editingPolicy.details.handling_time" 
+                  label="Handling Time (days)" 
+                  type="number"
+                  suffix="working days"
+                />
+              </div>
+            </template>
+
+            <!-- Placeholder for other types -->
+            <template v-else>
+              <div class="col-12 q-pa-lg text-center bg-grey-1 rounded-sm">
+                <q-icon name="las la-info-circle" size="md" color="grey-6" />
+                <div class="text-grey-7 q-mt-sm">Standard configuration for {{ editingPolicy.type }} policy. Add specific details in the description or via policy ID.</div>
+              </div>
+            </template>
+          </div>
+        </q-card-section>
+
+        <q-card-actions align="right" class="q-pa-md">
+          <q-btn flat label="Cancel" color="grey-7" v-close-popup />
+          <q-btn unelevated label="Save Policy" color="primary" @click="savePolicyDetails" class="q-px-lg" />
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
   </q-page>
 </template>
 
@@ -538,6 +867,7 @@ export default {
       messages: {},
       marketing: {},
       policies: [],
+      ebay_policies: [],
       automations: {},
       tax: {}
     });
@@ -548,6 +878,121 @@ export default {
       const r = allRegions.value.find(x => x.id === selectedOriginRegion.value);
       return r ? r.name : '';
     });
+
+    // eBay Policy Details
+    const policyDialog = ref(false);
+    const editingPolicy = ref(null);
+    const editingPolicyIndex = ref(-1);
+    const ebayShippingServices = ref([]);
+    const fetchingServices = ref(false);
+
+    const fetchShippingServices = async () => {
+      fetchingServices.value = true;
+      try {
+        const res = await api.get('/public/ebay-shipping-services', {
+          params: { countryCode: regionCode }
+        });
+        ebayShippingServices.value = res.data;
+      } catch (e) {
+        console.error('Failed to fetch eBay shipping services:', e);
+      } finally {
+        fetchingServices.value = false;
+      }
+    };
+
+    const editEbayPolicy = async (index) => {
+      editingPolicyIndex.value = index;
+      editingPolicy.value = JSON.parse(JSON.stringify(form.ebay_policies[index]));
+      
+      // Initialize details if empty
+      if (!editingPolicy.value.details) editingPolicy.value.details = {};
+      
+      if (editingPolicy.value.type === 'return') {
+        const d = editingPolicy.value.details;
+        if (d.accept_returns_national === undefined) d.accept_returns_national = true;
+        if (d.return_period_national === undefined) d.return_period_national = 'DAYS_30';
+        if (d.return_shipping_cost_payer_national === undefined) d.return_shipping_cost_payer_national = 'SELLER';
+        if (d.accept_returns_international === undefined) d.accept_returns_international = false;
+        if (d.return_period_international === undefined) d.return_period_international = 'DAYS_30';
+        if (d.return_shipping_cost_payer_international === undefined) d.return_shipping_cost_payer_international = 'SELLER';
+      }
+
+      if (editingPolicy.value.type === 'payment') {
+        const d = editingPolicy.value.details;
+        if (d.require_immediate_payment === undefined) d.require_immediate_payment = true;
+      }
+
+      if (editingPolicy.value.type === 'shipping') {
+        await fetchShippingServices();
+        const d = editingPolicy.value.details;
+        if (!d.domestic_options) d.domestic_options = [];
+        if (!d.international_options) d.international_options = [];
+        if (d.handling_time === undefined) d.handling_time = 2;
+      }
+      
+      policyDialog.value = true;
+    };
+
+    const addShippingOption = (isInternational = false) => {
+      if (!editingPolicy.value.details) editingPolicy.value.details = {};
+      const d = editingPolicy.value.details;
+      
+      const option = {
+        service_name: '',
+        shipping_cost: 0,
+        additional_cost: 0,
+        free_shipping: false
+      };
+      
+      if (isInternational) {
+        if (!d.international_options) d.international_options = [];
+        d.international_options.push(option);
+      } else {
+        if (!d.domestic_options) d.domestic_options = [];
+        d.domestic_options.push(option);
+      }
+    };
+
+    const removeShippingOption = (index, isInternational = false) => {
+      if (isInternational) {
+        editingPolicy.value.details.international_options.splice(index, 1);
+      } else {
+        editingPolicy.value.details.domestic_options.splice(index, 1);
+      }
+    };
+
+    const domesticServices = computed(() => ebayShippingServices.value.filter(s => !s.is_international));
+    const internationalServices = computed(() => ebayShippingServices.value.filter(s => s.is_international));
+
+    const savePolicyDetails = () => {
+      form.ebay_policies[editingPolicyIndex.value] = JSON.parse(JSON.stringify(editingPolicy.value));
+      policyDialog.value = false;
+    };
+
+    const addEbayPolicy = (type) => {
+      form.ebay_policies.push({
+        type: type,
+        name: `New ${type.charAt(0).toUpperCase() + type.slice(1)} Policy`,
+        description: '',
+        ebay_policy_id: '',
+        is_default: form.ebay_policies.filter(p => p.type === type).length === 0,
+        details: {}
+      });
+      // Automatically open editor for new policy
+      editEbayPolicy(form.ebay_policies.length - 1);
+    };
+
+    const removeEbayPolicy = (index) => {
+      form.ebay_policies.splice(index, 1);
+    };
+
+    const setDefaultEbayPolicy = (index, type) => {
+      form.ebay_policies.forEach((p, i) => {
+        if (p.type === type) {
+          p.is_default = (i === index);
+        }
+      });
+    };
 
     const loadSettings = async () => {
       if (!accountId || !regionCode) {
@@ -580,6 +1025,7 @@ export default {
         form.marketing = data.MarketingSettings || { volume_discount_status: false, sponsor_type: 'Fixed' };
         form.tax = data.TaxSettings || { vat_percentage: 0, auto_save_invoices: false };
         form.policies = data.AccountRegionPolicies || [];
+        form.ebay_policies = data.AccountEbayPolicies || [];
 
         // Auto-select origin
         const regionObj = allRegions.value.find(r => r.country_code === regionCode);
@@ -624,7 +1070,11 @@ export default {
     const saveSettings = async () => {
       saving.value = true;
       try {
-        await api.put(`/buyer-accounts/settings-group/${templateId.value}`, form);
+        const payload = {
+          ...form,
+          ebay_policies: form.ebay_policies
+        };
+        await api.put(`/buyer-accounts/settings-group/${templateId.value}`, payload);
         $q.notify({
           color: 'positive',
           message: 'Account settings saved successfully',
@@ -655,7 +1105,19 @@ export default {
       form,
       isDark,
       saveSettings,
-      selectPolicy
+      selectPolicy,
+      addEbayPolicy,
+      removeEbayPolicy,
+      setDefaultEbayPolicy,
+      editEbayPolicy,
+      savePolicyDetails,
+      addShippingOption,
+      removeShippingOption,
+      domesticServices,
+      internationalServices,
+      fetchingServices,
+      policyDialog,
+      editingPolicy
     };
   }
 }
