@@ -158,6 +158,19 @@
               :rules="[(val) => !!val || 'Home country is required']"
             />
 
+            <!-- Region-specific info (Read-only) -->
+            <div v-if="editedCustomer.id" class="row q-col-gutter-sm">
+              <div class="col-4">
+                <q-input filled v-model="editedCustomer.currency" label="Currency" readonly dense />
+              </div>
+              <div class="col-4">
+                <q-input filled v-model="editedCustomer.language" label="Language" readonly dense />
+              </div>
+              <div class="col-4">
+                <q-input filled v-model="editedCustomer.ebay_region" label="eBay Region" readonly dense />
+              </div>
+            </div>
+
             <!-- Package Selection -->
             <q-select
               filled
@@ -290,6 +303,7 @@ export default {
         { name: 'company_name', required: false, label: 'Company Name', align: 'left', field: 'company_name', sortable: true },
         { name: 'vat_tax_id', required: false, label: 'VAT/Tax ID', align: 'left', field: 'vat_tax_id', sortable: true },
         { name: 'email', align: 'left', label: 'Primary Email', field: 'email', sortable: true },
+        { name: 'home_country', align: 'center', label: 'Region', field: row => row.GlobalRegion ? row.GlobalRegion.name : (row.home_country || 'N/A'), sortable: true },
         { name: 'package_name', align: 'left', label: 'Package', field: row => row.Package ? row.Package.name : 'N/A', sortable: true },
         { name: 'status', align: 'center', label: 'Status', field: 'status', sortable: true },
         { name: 'renew_date', align: 'center', label: 'Renew Date', field: 'renew_date', format: val => this.formatDate(val), sortable: true },
