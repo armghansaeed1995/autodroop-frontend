@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia';
 import { reactive, toRefs } from 'vue';
-import { LocalStorage } from 'quasar'
+import { LocalStorage, Notify } from 'quasar'
 
 const WS_URL = 'ws://localhost:3000';
 
@@ -47,9 +47,36 @@ export const useSocketStore = defineStore('socket', () => {
           });
         }
         break;
+      case 'notification/received':
+        handleNotification(message.payload);
+        break;
       case 'error':
         state.error = message.payload;
         break;
+    }
+  }
+
+  function handleNotification(payload) {
+    const { type, title, message, link, level } = payload;
+    
+    // 1. Quasar UI Notification
+    Notify.create({
+      type: level || (type === 'ERROR' ? 'negative' : 'info'),
+      message: `${title}: ${message}`,
+      caption: type,
+      position: 'top-right',
+      timeout: 5000,
+      actions: link ? [{ label: 'View', color: 'white', handler: () => window.location.hash = link }] : undefined
+    });
+
+    // 2. Native Browser Notification
+    if (Notification.permission === 'granted') {
+      new Notification(title, {
+        body: message,
+        icon: '/favicon.ico'
+      });
+    } else if (Notification.permission !== 'denied') {
+      Notification.requestPermission();
     }
   }
 

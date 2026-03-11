@@ -25,6 +25,7 @@ const routes = [
       { path: 'customer-management', component: () => import('pages/admin/CustomerManagement.vue') },
       { path: 'global-regions', component: () => import('pages/admin/GlobalRegions.vue') },
       { path: 'global-templates', component: () => import('pages/admin/GlobalTemplates.vue') },
+      { path: 'restricted-keywords', component: () => import('pages/admin/RestrictedKeywords.vue') },
     ]
   },
 
@@ -51,6 +52,7 @@ const routes = [
       { path: 'product-drafts', component: () => import('../pages/customer/ProductDrafts.vue') },
       { path: 'inventory', component: () => import('../pages/customer/InventoryList.vue') },
       { path: 'orders', component: () => import('../pages/customer/OrdersList.vue') },
+      { path: 'messages', component: () => import('../pages/customer/EbayMessages.vue') },
       { path: 'message-templates', component: () => import('../pages/customer/MessageTemplates.vue') },
       { path: 'suppliers', component: () => import('../pages/customer/SuppliersList.vue') },
     ]

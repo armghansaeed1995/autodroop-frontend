@@ -313,6 +313,7 @@ export default {
         { label: 'Product Drafts', icon: 'las la-box-open', to: '/customer/product-drafts', roles: ['owner', 'staff'] },
         { label: 'Inventory', icon: 'las la-boxes', to: '/customer/inventory', roles: ['owner', 'staff'] },
         { label: 'Orders', icon: 'las la-receipt', to: '/customer/orders', roles: ['owner', 'staff'] },
+        { label: 'Messages', icon: 'las la-comments', to: '/customer/messages', roles: ['owner', 'staff'] },
       ];
       return allItems.filter(item => item.roles.includes(this.userRole));
     },

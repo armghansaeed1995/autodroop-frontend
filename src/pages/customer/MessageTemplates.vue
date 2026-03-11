@@ -106,7 +106,7 @@
 
             <div class="text-caption text-grey-6 q-mt-sm">
               You can use the following variables in your subject and body:
-              <code>{{buyer_name}}</code>, <code>{{order_id}}</code>, <code>{{tracking_id}}</code>, <code>{{carrier}}</code>.
+              <code>{buyer_name}</code>, <code>{order_id}</code>, <code>{item_title}</code>, <code>{tracking_id}</code>, <code>{ship_date}</code>.
             </div>
 
             <q-card-actions align="right" class="text-primary">
