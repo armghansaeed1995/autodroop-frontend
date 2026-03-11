@@ -89,20 +89,50 @@
         System
       </div>
       <q-list class="q-px-sm">
-        <q-item
-          v-for="nav in filteredSystemNavItems"
-          :key="nav.to"
-          clickable
-          v-ripple
-          :to="nav.to"
-          active-class="active-nav-item"
-          class="nav-item q-mb-xs"
-        >
-          <q-item-section avatar>
-            <q-icon :name="nav.icon" size="24px" />
-          </q-item-section>
-          <q-item-section class="text-weight-medium">{{ nav.label }}</q-item-section>
-        </q-item>
+        <template v-for="nav in filteredSystemNavItems" :key="nav.to || nav.label">
+          <!-- Item with children -->
+          <q-expansion-item
+            v-if="nav.children"
+            :icon="nav.icon"
+            :label="nav.label"
+            class="nav-item q-mb-xs"
+            header-class="text-weight-medium"
+            expand-separator
+            default-opened
+          >
+            <q-list class="q-pl-lg">
+              <q-item
+                v-for="child in nav.children"
+                :key="child.to"
+                clickable
+                v-ripple
+                :to="child.to"
+                active-class="active-nav-item"
+                class="nav-item q-mb-xs"
+              >
+                <q-item-section avatar>
+                  <q-icon :name="child.icon" size="20px" />
+                </q-item-section>
+                <q-item-section class="text-weight-medium text-caption">{{ child.label }}</q-item-section>
+              </q-item>
+            </q-list>
+          </q-expansion-item>
+
+          <!-- Single item -->
+          <q-item
+            v-else
+            clickable
+            v-ripple
+            :to="nav.to"
+            active-class="active-nav-item"
+            class="nav-item q-mb-xs"
+          >
+            <q-item-section avatar>
+              <q-icon :name="nav.icon" size="24px" />
+            </q-item-section>
+            <q-item-section class="text-weight-medium">{{ nav.label }}</q-item-section>
+          </q-item>
+        </template>
       </q-list>
     </q-drawer>
 
@@ -146,22 +176,48 @@
 
         <q-card-section>
           <q-list separator class="q-mb-md">
-            <q-item
-              v-for="nav in systemNavItems"
-              :key="nav.to"
-              clickable
-              v-ripple
-              :to="nav.to"
-              @click="mobileMoreMenuOpen = false"
-            >
-              <q-item-section avatar>
-                <q-icon :name="nav.icon" color="primary" size="24px" />
-              </q-item-section>
-              <q-item-section class="text-weight-medium">{{ nav.label }}</q-item-section>
-              <q-item-section side>
-                <q-icon name="las la-angle-right" />
-              </q-item-section>
-            </q-item>
+            <template v-for="nav in filteredSystemNavItems" :key="nav.to || nav.label">
+              <!-- Item with children -->
+              <q-expansion-item
+                v-if="nav.children"
+                :icon="nav.icon"
+                :label="nav.label"
+                header-class="text-weight-medium"
+              >
+                <q-list class="q-pl-md">
+                  <q-item
+                    v-for="child in nav.children"
+                    :key="child.to"
+                    clickable
+                    v-ripple
+                    :to="child.to"
+                    @click="mobileMoreMenuOpen = false"
+                  >
+                    <q-item-section avatar>
+                      <q-icon :name="child.icon" color="primary" size="20px" />
+                    </q-item-section>
+                    <q-item-section class="text-weight-medium text-caption">{{ child.label }}</q-item-section>
+                  </q-item>
+                </q-list>
+              </q-expansion-item>
+
+              <!-- Single item -->
+              <q-item
+                v-else
+                clickable
+                v-ripple
+                :to="nav.to"
+                @click="mobileMoreMenuOpen = false"
+              >
+                <q-item-section avatar>
+                  <q-icon :name="nav.icon" color="primary" size="24px" />
+                </q-item-section>
+                <q-item-section class="text-weight-medium">{{ nav.label }}</q-item-section>
+                <q-item-section side>
+                  <q-icon name="las la-angle-right" />
+                </q-item-section>
+              </q-item>
+            </template>
           </q-list>
 
           <q-separator class="q-my-md" />
@@ -261,10 +317,20 @@ export default {
     },
     filteredSystemNavItems() { // Specific to Customer layout
       const allItems = [
-        { label: 'Connected Accounts', icon: 'las la-plug', to: '/customer/connected-accounts', roles: ['owner', 'staff'] },
         { label: 'Message Templates', icon: 'las la-envelope', to: '/customer/message-templates', roles: ['owner', 'staff'] },
         { label: 'Suppliers', icon: 'las la-warehouse', to: '/customer/suppliers', roles: ['owner', 'staff'] },
-        { label: 'Settings', icon: 'las la-cog', to: '/customer/settings', roles: ['owner', 'staff'] },
+        { 
+          label: 'Settings', 
+          icon: 'las la-cog', 
+          to: '/customer/settings', 
+          roles: ['owner', 'staff'],
+          children: [
+            { label: 'eBay Accounts', icon: 'lab la-ebay', to: '/customer/settings/ebay-accounts' },
+            { label: 'Supplier Accounts', icon: 'las la-truck-loading', to: '/customer/settings/supplier-accounts' },
+            { label: 'Preferences & Tools', icon: 'las la-tools', to: '/customer/settings/preferences' },
+            { label: 'Profile & Billing', icon: 'las la-file-invoice-dollar', to: '/customer/settings/billing' }
+          ]
+        },
       ];
       return allItems.filter(item => item.roles.includes(this.userRole));
     },

@@ -54,6 +54,7 @@
               <q-tab name="automations" icon="las la-robot" label="Automations" class="custom-tab" />
               <q-tab name="policies" icon="las la-shield-alt" label="Policies" class="custom-tab" />
               <q-tab name="tax" icon="las la-file-invoice-dollar" label="Taxes" class="custom-tab" />
+              <q-tab name="untracked" icon="las la-search-minus" label="Untracked" class="custom-tab" />
             </q-tabs>
           </q-card>
         </div>
@@ -280,13 +281,13 @@
                     <div class="text-h5 text-weight-bold">Marketing & Promotions</div>
                   </div>
                   
-                  <div class="text-subtitle2 text-primary q-mb-md">Sponsorships</div>
+                  <div class="text-subtitle2 text-primary q-mb-md">Automatic Sponsorship</div>
                   <div class="row q-col-gutter-lg q-mb-xl">
                     <div class="col-12 col-md-6">
                       <q-item tag="label" v-ripple class="toggle-item border rounded-sm" :class="isDark ? 'bg-grey-9' : 'bg-f8'">
                         <q-item-section>
-                          <q-item-label class="text-weight-bold">Auto-Sponsor</q-item-label>
-                          <q-item-label caption>eBay Promoted Listings</q-item-label>
+                          <q-item-label class="text-weight-bold">Automatic Ad Sponsorship</q-item-label>
+                          <q-item-label caption>Sponsor listings 5-10 minutes after publishing</q-item-label>
                         </q-item-section>
                         <q-item-section side>
                           <q-toggle v-model="form.marketing.auto_sponsor" color="primary" />
@@ -294,7 +295,17 @@
                       </q-item>
                     </div>
                     <div class="col-12 col-md-6">
-                      <q-select v-model="form.marketing.sponsor_type" label="Sponsor Type" :options="['Fixed', 'Dynamic']" filled dense />
+                      <q-select 
+                        v-model="form.marketing.sponsor_type" 
+                        label="Sponsorship Type" 
+                        :options="['Fixed', 'Dynamic', 'Aggressive']" 
+                        filled 
+                        dense 
+                        :disable="!form.marketing.auto_sponsor"
+                      />
+                    </div>
+                    <div class="col-12" v-if="form.marketing.auto_sponsor">
+                      <q-checkbox v-model="form.marketing.apply_to_all_sponsored" label="Apply this new value to all currently sponsored listings" color="primary" />
                     </div>
                   </div>
 
@@ -532,6 +543,45 @@
                       rows="8" 
                       placeholder="Enter the message to send to suppliers when requesting an invoice..."
                     />
+                  </div>
+                </q-card-section>
+              </q-card>
+            </q-tab-panel>
+
+            <!-- 8. Untracked Products -->
+            <q-tab-panel name="untracked" class="q-pa-none">
+              <q-card flat bordered class="settings-card" :class="isDark ? 'bg-surface-dark border-dark' : 'bg-white'">
+                <q-card-section class="q-pa-xl">
+                  <div class="row items-center q-mb-lg">
+                    <q-avatar :color="isDark ? 'primary-900' : 'primary-1'" text-color="primary" icon="las la-search-minus" size="40px" class="q-mr-sm" />
+                    <div class="text-h5 text-weight-bold">Untracked Products & Migration</div>
+                  </div>
+                  <p class="text-body2 text-grey-6 q-mb-xl">Synchronize your eBay account to import items not currently monitored by AutoDroop.</p>
+
+                  <div class="row q-col-gutter-lg">
+                    <div class="col-12">
+                      <div class="border rounded-sm q-pa-lg text-center" :class="isDark ? 'bg-grey-9' : 'bg-f8'">
+                        <q-icon name="las la-sync" size="48px" color="primary" class="q-mb-md animate-spin-slow" />
+                        <div class="text-h6 q-mb-sm">Full Inventory Sync</div>
+                        <p class="text-body2 text-grey-7">AutoDroop will scan your active eBay listings and attempt to match them with suppliers.</p>
+                        <q-btn color="primary" label="Start Sync Now" unelevated icon="las la-play" class="q-px-xl" />
+                      </div>
+                    </div>
+
+                    <div class="col-12">
+                      <q-card flat bordered class="q-pa-md border-dashed">
+                        <div class="row items-center q-mb-sm">
+                          <q-icon name="las la-exchange-alt" color="orange" size="24px" class="q-mr-sm" />
+                          <div class="text-subtitle1 text-weight-bold">Migrate from AutoDS</div>
+                        </div>
+                        <p class="text-caption text-grey-7">Import your existing AutoDS inventory directly. Requires Chrome Extension.</p>
+                        <ul class="text-caption text-grey-7 q-pl-md">
+                          <li>AutoDS subscription must be active.</li>
+                          <li>Prices and titles will be optimized per current settings.</li>
+                        </ul>
+                        <q-btn outline color="orange" label="Start AutoDS Migration" icon="las la-file-import" size="sm" />
+                      </q-card>
+                    </div>
                   </div>
                 </q-card-section>
               </q-card>

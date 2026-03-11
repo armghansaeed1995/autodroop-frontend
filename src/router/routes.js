@@ -7,24 +7,24 @@ const routes = [
       { path: '', component: () => import('pages/IndexPage.vue') },
       { path: 'register', component: () => import('pages/RegisterPage.vue'), meta: { requiresAuth: false } },
       { path: 'buy-package', component: () => import('pages/BuyPackagePage.vue'), meta: { requiresAuth: false } },
-      { path: 'admin/login', component: () => import('pages/admin/AdminLogin.vue'), meta: { requiresAuth: false } }, // Moved to Admin folder
-      { path: 'customer/login', component: () => import('pages/customer/CustomerLogin.vue'), meta: { requiresAuth: false } } // Moved to Customer folder
+      { path: 'admin/login', component: () => import('pages/admin/AdminLogin.vue'), meta: { requiresAuth: false } },
+      { path: 'customer/login', component: () => import('pages/customer/CustomerLogin.vue'), meta: { requiresAuth: false } }
     ]
   },
 
   // Admin Portal Routes
   {
     path: '/admin',
-    component: () => import('layouts/AdminLayout.vue'), // Changed to AdminLayout
+    component: () => import('layouts/AdminLayout.vue'),
     meta: { requiresAuth: true, roles: ['sysadmin'] },
     children: [
-      { path: 'dashboard', component: () => import('pages/admin/AdminDashboard.vue'), meta: { requiresAuth: true, roles: ['sysadmin'] } }, // Moved to Admin folder
-      { path: 'settings', component: () => import('pages/admin/SettingsPage.vue'), meta: { requiresAuth: true, roles: ['sysadmin'] } },
-      { path: 'packages', component: () => import('pages/admin/PackagesPage.vue'), meta: { requiresAuth: true, roles: ['sysadmin'] } },
-      { path: 'design', component: () => import('pages/DesignShowcase.vue'), meta: { requiresAuth: true, roles: ['sysadmin'] } },
-      { path: 'customer-management', component: () => import('pages/admin/CustomerManagement.vue'), meta: { requiresAuth: true, roles: ['sysadmin'] } },
-      { path: 'global-regions', component: () => import('pages/admin/GlobalRegions.vue'), meta: { requiresAuth: true, roles: ['sysadmin'] } },
-      { path: 'global-templates', component: () => import('pages/admin/GlobalTemplates.vue'), meta: { requiresAuth: true, roles: ['sysadmin'] } },
+      { path: 'dashboard', component: () => import('pages/admin/AdminDashboard.vue') },
+      { path: 'settings', component: () => import('pages/admin/SettingsPage.vue') },
+      { path: 'packages', component: () => import('pages/admin/PackagesPage.vue') },
+      { path: 'design', component: () => import('pages/DesignShowcase.vue') },
+      { path: 'customer-management', component: () => import('pages/admin/CustomerManagement.vue') },
+      { path: 'global-regions', component: () => import('pages/admin/GlobalRegions.vue') },
+      { path: 'global-templates', component: () => import('pages/admin/GlobalTemplates.vue') },
     ]
   },
 
@@ -34,19 +34,27 @@ const routes = [
     component: () => import('layouts/CustomerLayout.vue'),
     meta: { requiresAuth: true, roles: ['owner', 'staff'] },
     children: [
-      { path: 'dashboard', component: () => import('pages/customer/CustomerDashboard.vue'), meta: { requiresAuth: true, roles: ['owner', 'staff'] } },
-      { path: 'settings', component: () => import('pages/customer/SettingsPage.vue'), meta: { requiresAuth: true, roles: ['owner', 'staff'] } },
-      { path: 'ebay-settings', component: () => import('pages/customer/EbayAccountSettings.vue'), meta: { requiresAuth: true, roles: ['owner', 'staff'] } },
-      { path: 'connected-accounts', component: () => import('pages/customer/ConnectedAccounts.vue'), meta: { requiresAuth: true, roles: ['owner', 'staff'] } },
-      { path: 'product-drafts', component: () => import('pages/customer/ProductDrafts.vue'), meta: { requiresAuth: true, roles: ['owner', 'staff'] } },
-      { path: 'orders', component: () => import('pages/customer/OrdersList.vue'), meta: { requiresAuth: true, roles: ['owner', 'staff'] } },
-      { path: 'message-templates', component: () => import('pages/customer/MessageTemplates.vue'), meta: { requiresAuth: true, roles: ['owner', 'staff'] } },
-      { path: 'suppliers', component: () => import('pages/customer/SuppliersList.vue'), meta: { requiresAuth: true, roles: ['owner', 'staff'] } },
+      { path: 'dashboard', component: () => import('../pages/customer/CustomerDashboard.vue') },
+      { 
+        path: 'settings', 
+        component: () => import('../pages/customer/SettingsPage.vue'),
+        children: [
+          { path: '', redirect: 'ebay-accounts' },
+          { path: 'ebay-accounts', component: () => import('../pages/customer/ConnectedAccounts.vue') },
+          { path: 'supplier-accounts', component: () => import('../pages/customer/SupplierAccounts.vue') },
+          { path: 'preferences', component: () => import('../pages/customer/PreferencesTools.vue') },
+          { path: 'billing', component: () => import('../pages/customer/ProfileBilling.vue') },
+        ]
+      },
+      { path: 'ebay-settings', component: () => import('../pages/customer/EbayAccountSettings.vue') },
+      { path: 'connected-accounts', redirect: 'settings/ebay-accounts' },
+      { path: 'product-drafts', component: () => import('../pages/customer/ProductDrafts.vue') },
+      { path: 'orders', component: () => import('../pages/customer/OrdersList.vue') },
+      { path: 'message-templates', component: () => import('../pages/customer/MessageTemplates.vue') },
+      { path: 'suppliers', component: () => import('../pages/customer/SuppliersList.vue') },
     ]
   },
 
-  // Always leave this as last one,
-  // but you can also remove it
   {
     path: '/:catchAll(.*)*',
     component: () => import('pages/ErrorNotFound.vue'),
