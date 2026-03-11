@@ -49,6 +49,7 @@ const routes = [
       { path: 'ebay-settings', component: () => import('../pages/customer/EbayAccountSettings.vue') },
       { path: 'connected-accounts', redirect: 'settings/ebay-accounts' },
       { path: 'product-drafts', component: () => import('../pages/customer/ProductDrafts.vue') },
+      { path: 'inventory', component: () => import('../pages/customer/InventoryList.vue') },
       { path: 'orders', component: () => import('../pages/customer/OrdersList.vue') },
       { path: 'message-templates', component: () => import('../pages/customer/MessageTemplates.vue') },
       { path: 'suppliers', component: () => import('../pages/customer/SuppliersList.vue') },

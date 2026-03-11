@@ -14,7 +14,7 @@
               <q-icon name="las la-globe" color="primary" size="24px" class="q-mr-sm" />
               <div class="text-h6 text-weight-medium">General Preferences</div>
             </div>
-            
+
             <q-list>
               <q-item>
                 <q-item-section>
@@ -224,7 +224,7 @@
 </template>
 
 <script>
-import { ref, reactive, computed } from 'vue';
+import {  reactive, computed } from 'vue';
 import { useQuasar } from 'quasar';
 
 export default {

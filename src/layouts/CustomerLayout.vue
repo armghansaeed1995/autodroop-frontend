@@ -311,6 +311,7 @@ export default {
       const allItems = [
         { label: 'My Dashboard', icon: 'las la-home', to: '/customer/dashboard', roles: ['owner', 'staff'] },
         { label: 'Product Drafts', icon: 'las la-box-open', to: '/customer/product-drafts', roles: ['owner', 'staff'] },
+        { label: 'Inventory', icon: 'las la-boxes', to: '/customer/inventory', roles: ['owner', 'staff'] },
         { label: 'Orders', icon: 'las la-receipt', to: '/customer/orders', roles: ['owner', 'staff'] },
       ];
       return allItems.filter(item => item.roles.includes(this.userRole));

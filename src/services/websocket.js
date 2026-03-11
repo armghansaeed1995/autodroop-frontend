@@ -12,6 +12,7 @@ export const useSocketStore = defineStore('socket', () => {
     error: null,   // Last received error
     items: [],     // Example list of items from the backend
     customers: [], // List of customers from the backend
+    supplierOTPs: {}, // Store OTPs by supplier ID: { supplierId: { otp, remaining } }
   });
 
   function setConnected(value) {
@@ -35,6 +36,16 @@ export const useSocketStore = defineStore('socket', () => {
         break;
       case 'customers/list-success':
         state.customers = message.payload;
+        break;
+      case 'suppliers/otp-update':
+        if (message.payload.otps) {
+          message.payload.otps.forEach(otpItem => {
+            state.supplierOTPs[otpItem.supplier_id] = {
+              otp: otpItem.otp,
+              remaining: otpItem.remaining
+            };
+          });
+        }
         break;
       case 'error':
         state.error = message.payload;
