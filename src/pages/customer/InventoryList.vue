@@ -2,21 +2,21 @@
   <q-page padding class="bg-page">
     <div class="row items-center justify-between q-mb-xl">
       <div>
-        <h1 class="text-h4 text-weight-bold q-my-none tracking-tight">Inventory Management</h1>
-        <p class="text-body2 text-grey-6 q-mt-xs">Monitor performance, optimize listings, and manage sponsorships.</p>
+        <h1 class="text-h4 text-weight-bold q-my-none tracking-tight">{{ $t('inventory.title') }}</h1>
+        <p class="text-body2 text-grey-6 q-mt-xs">{{ $t('inventory.subtitle') }}</p>
       </div>
       <div class="row q-gutter-sm">
         <q-btn
           outline
           color="primary"
           icon="las la-filter"
-          label="Advanced Filters"
+          :label="$t('inventory.advancedFilters')"
           @click="showFilters = !showFilters"
         />
         <q-btn
           color="primary"
           icon="las la-sync"
-          label="Refresh Performance"
+          :label="$t('inventory.refreshPerformance')"
           @click="fetchInventory"
           :loading="loading"
         />
@@ -28,7 +28,7 @@
       <div class="col-12 col-md-3">
         <q-card flat bordered class="stat-card">
           <q-card-section>
-            <div class="text-grey-7 text-caption text-uppercase text-weight-bold">Total Listings</div>
+            <div class="text-grey-7 text-caption text-uppercase text-weight-bold">{{ $t('inventory.stats.totalListings') }}</div>
             <div class="text-h4 text-weight-bolder">{{ pagination.rowsNumber }}</div>
           </q-card-section>
         </q-card>
@@ -36,7 +36,7 @@
       <div class="col-12 col-md-3">
         <q-card flat bordered class="stat-card border-orange">
           <q-card-section>
-            <div class="text-orange-9 text-caption text-uppercase text-weight-bold">High DWS (>30)</div>
+            <div class="text-orange-9 text-caption text-uppercase text-weight-bold">{{ $t('inventory.stats.highDws') }}</div>
             <div class="text-h4 text-weight-bolder text-orange-9">{{ highDwsCount }}</div>
           </q-card-section>
         </q-card>
@@ -44,7 +44,7 @@
       <div class="col-12 col-md-3">
         <q-card flat bordered class="stat-card border-green">
           <q-card-section>
-            <div class="text-green-9 text-caption text-uppercase text-weight-bold">Sponsored Items</div>
+            <div class="text-green-9 text-caption text-uppercase text-weight-bold">{{ $t('inventory.stats.sponsoredItems') }}</div>
             <div class="text-h4 text-weight-bolder text-green-9">{{ sponsoredCount }}</div>
           </q-card-section>
         </q-card>
@@ -52,7 +52,7 @@
       <div class="col-12 col-md-3">
         <q-card flat bordered class="stat-card border-blue">
           <q-card-section>
-            <div class="text-blue-9 text-caption text-uppercase text-weight-bold">Monthly Views</div>
+            <div class="text-blue-9 text-caption text-uppercase text-weight-bold">{{ $t('inventory.stats.monthlyViews') }}</div>
             <div class="text-h4 text-weight-bolder text-blue-9">{{ totalViews }}</div>
           </q-card-section>
         </q-card>
@@ -67,7 +67,7 @@
              <div class="col-12 col-md-4">
               <q-input
                 v-model="filters.search"
-                placeholder="Search Title, Listing ID..."
+                :placeholder="$t('inventory.filters.searchPlaceholder')"
                 outlined
                 dense
                 clearable
@@ -82,7 +82,7 @@
               <q-select
                 v-model="filters.region"
                 :options="['IT', 'UK', 'US', 'DE', 'FR']"
-                label="Region"
+                :label="$t('inventory.filters.region')"
                 outlined
                 dense
                 clearable
@@ -92,7 +92,7 @@
               <q-select
                 v-model="filters.status"
                 :options="['active', 'error', 'publishing']"
-                label="Status"
+                :label="$t('inventory.filters.status')"
                 outlined
                 dense
                 clearable
@@ -102,7 +102,7 @@
               <q-input
                 v-model.number="filters.min_views"
                 type="number"
-                label="Min Views"
+                :label="$t('inventory.filters.minViews')"
                 outlined
                 dense
               />
@@ -111,7 +111,7 @@
               <q-input
                 v-model.number="filters.max_dws"
                 type="number"
-                label="Max DWS"
+                :label="$t('inventory.filters.maxDws')"
                 outlined
                 dense
               />
@@ -119,14 +119,14 @@
             <div class="col-12 col-md-2">
               <q-toggle
                 v-model="filters.is_sponsored"
-                label="Sponsored Only"
+                :label="$t('inventory.filters.sponsoredOnly')"
                 color="primary"
                 keep-color
               />
             </div>
             <div class="col-12 row justify-end q-gutter-sm">
-              <q-btn flat label="Reset" color="grey-7" @click="resetFilters" />
-              <q-btn unelevated label="Apply Filters" color="primary" @click="fetchInventory" />
+              <q-btn flat :label="$t('inventory.filters.reset')" color="grey-7" @click="resetFilters" />
+              <q-btn unelevated :label="$t('inventory.filters.apply')" color="primary" @click="fetchInventory" />
             </div>
           </q-card-section>
         </q-card>
@@ -160,7 +160,7 @@
                 </div>
                 <div class="row items-center q-gutter-xs q-mt-xs">
                   <q-badge outline color="blue-7" size="sm" class="cursor-pointer" @click="openExternalLink('https://www.ebay.it/itm/' + props.row.ebay_listing_id)">
-                    SELL: {{ props.row.ebay_listing_id || 'PENDING' }}
+                    SELL: {{ props.row.ebay_listing_id || $t('inventory.metrics.pending') }}
                     <q-icon name="las la-external-link-alt" class="q-ml-xs" />
                   </q-badge>
                   <q-chip dense outline size="xs" color="grey-6" class="q-ma-none">
@@ -178,19 +178,19 @@
             <div class="column items-center">
               <div class="row items-center q-gutter-sm">
                 <div class="column items-center">
-                  <span class="text-caption text-grey-7">DWS</span>
+                  <span class="text-caption text-grey-7">{{ $t('inventory.metrics.dws') }}</span>
                   <q-badge :color="props.row.dws > 30 ? 'negative' : 'grey-8'" class="text-weight-bold">
                     {{ props.row.dws }}
                   </q-badge>
                 </div>
                 <q-separator vertical inset />
                 <div class="column items-center">
-                  <span class="text-caption text-grey-7">Views</span>
+                  <span class="text-caption text-grey-7">{{ $t('inventory.metrics.views') }}</span>
                   <span class="text-weight-bold text-blue-9">{{ props.row.views }}</span>
                 </div>
                 <q-separator vertical inset />
                 <div class="column items-center">
-                  <span class="text-caption text-grey-7">Imp.</span>
+                  <span class="text-caption text-grey-7">{{ $t('inventory.metrics.impressions') }}</span>
                   <span class="text-weight-bold text-purple-9">{{ props.row.impressions }}</span>
                 </div>
               </div>
@@ -203,18 +203,18 @@
           <q-td :props="props">
             <div class="column items-end">
               <div class="row items-center q-gutter-xs">
-                <span class="text-caption text-grey-7">NET:</span>
+                <span class="text-caption text-grey-7">{{ $t('inventory.metrics.net') }}</span>
                 <span class="text-weight-bold" :class="props.row.profit > 0 ? 'text-positive' : 'text-negative'">
                   {{ formatCurrency(props.row.profit) }}
                 </span>
               </div>
               <div class="row items-center q-gutter-xs" v-if="props.row.is_sponsored">
-                <span class="text-caption text-grey-7 text-weight-bold text-green-8">ADV:</span>
+                <span class="text-caption text-grey-7 text-weight-bold text-green-8">{{ $t('inventory.metrics.adv') }}</span>
                 <span class="text-weight-bolder text-green-9">
                   {{ formatCurrency(props.row.adv_profit) }}
                 </span>
               </div>
-              <div v-else class="text-caption text-grey-5">No Sponsorship</div>
+              <div v-else class="text-caption text-grey-5">{{ $t('inventory.metrics.noSponsorship') }}</div>
             </div>
           </q-td>
         </template>
@@ -232,7 +232,7 @@
                 {{ props.row.status }}
               </q-chip>
               <div v-if="props.row.is_sponsored" class="q-mt-xs">
-                <q-badge color="green-2" text-color="green-9" label="SPONSORED" size="sm" class="text-weight-bolder" />
+                <q-badge color="green-2" text-color="green-9" :label="$t('inventory.metrics.sponsored')" size="sm" class="text-weight-bolder" />
               </div>
             </div>
           </q-td>
@@ -243,13 +243,13 @@
           <q-td :props="props">
             <div class="row q-gutter-xs justify-end">
               <q-btn flat round dense color="green-8" icon="las la-bullhorn" @click="sponsorListing(props.row)">
-                <q-tooltip>Sponsor Listing</q-tooltip>
+                <q-tooltip>{{ $t('inventory.tooltips.sponsor') }}</q-tooltip>
               </q-btn>
               <q-btn flat round dense color="primary" icon="las la-pen" @click="editListing(props.row)">
-                <q-tooltip>Edit Details</q-tooltip>
+                <q-tooltip>{{ $t('inventory.tooltips.edit') }}</q-tooltip>
               </q-btn>
               <q-btn flat round dense color="negative" icon="las la-trash-alt" @click="deleteListing(props.row)">
-                <q-tooltip>Delete Listing</q-tooltip>
+                <q-tooltip>{{ $t('inventory.tooltips.delete') }}</q-tooltip>
               </q-btn>
             </div>
           </q-td>
@@ -266,16 +266,16 @@
               <q-avatar size="28px" color="white" text-color="primary" class="text-weight-bold q-mr-sm">
                 {{ selected.length }}
               </q-avatar>
-              <div class="text-subtitle2">Items Selected</div>
+              <div class="text-subtitle2">{{ $t('inventory.bulkActions.selected') }}</div>
             </div>
 
             <q-separator vertical dark class="q-mx-md opacity-20" />
 
             <div class="row items-center q-gutter-md">
-              <q-btn flat no-caps icon="las la-bullhorn" label="Bulk Sponsor" @click="bulkSponsor" />
-              <q-btn flat no-caps icon="las la-pen" label="Bulk Edit" @click="bulkEdit" />
-              <q-btn flat no-caps icon="las la-trash-alt" label="Bulk Delete" color="red-2" @click="bulkDelete" />
-              <q-btn flat no-caps icon="las la-times-circle" label="Remove Sponsorship" @click="bulkRemoveSponsor" />
+              <q-btn flat no-caps icon="las la-bullhorn" :label="$t('inventory.bulkActions.sponsor')" @click="bulkSponsor" />
+              <q-btn flat no-caps icon="las la-pen" :label="$t('inventory.bulkActions.edit')" @click="bulkEdit" />
+              <q-btn flat no-caps icon="las la-trash-alt" :label="$t('inventory.bulkActions.delete')" color="red-2" @click="bulkDelete" />
+              <q-btn flat no-caps icon="las la-times-circle" :label="$t('inventory.bulkActions.removeSponsor')" @click="bulkRemoveSponsor" />
             </div>
 
             <q-space />
@@ -289,27 +289,27 @@
     <q-dialog v-model="showSponsorDialog">
       <q-card style="width: 400px; border-radius: 16px;">
         <q-card-section class="row items-center">
-          <div class="text-h6 text-weight-bold">Sponsor Listing</div>
+          <div class="text-h6 text-weight-bold">{{ $t('inventory.sponsorDialog.title') }}</div>
           <q-space />
           <q-btn icon="close" flat round dense v-close-popup />
         </q-card-section>
 
         <q-card-section class="q-pt-none">
-          <p class="text-body2 text-grey-6">Set your eBay Promoted Listings ad rate. This percentage will be deducted from your sale price upon successful sale via promotion.</p>
+          <p class="text-body2 text-grey-6">{{ $t('inventory.sponsorDialog.subtitle') }}</p>
           <q-input
             v-model.number="sponsorData.ad_rate"
             type="number"
-            label="Ad Rate (%)"
+            :label="$t('inventory.sponsorDialog.adRate')"
             outlined
             suffix="%"
-            hint="Recommended: 2.0% - 10.0%"
+            :hint="$t('inventory.sponsorDialog.hint')"
             class="q-mb-md"
           />
         </q-card-section>
 
         <q-card-actions align="right" class="q-pa-md">
-          <q-btn flat label="Cancel" v-close-popup />
-          <q-btn unelevated label="Apply Sponsorship" color="green-8" @click="applySponsorship" />
+          <q-btn flat :label="$t('common.cancel')" v-close-popup />
+          <q-btn unelevated :label="$t('inventory.sponsorDialog.apply')" color="green-8" @click="applySponsorship" />
         </q-card-actions>
       </q-card>
     </q-dialog>
@@ -318,32 +318,32 @@
     <q-dialog v-model="showEditDialog">
       <q-card style="width: 600px; max-width: 90vw; border-radius: 16px;">
         <q-card-section class="row items-center">
-          <div class="text-h6 text-weight-bold">Edit Listing Details</div>
+          <div class="text-h6 text-weight-bold">{{ $t('inventory.editDialog.title') }}</div>
           <q-space />
           <q-btn icon="close" flat round dense v-close-popup />
         </q-card-section>
 
         <q-card-section class="q-pt-none row q-col-gutter-md">
           <div class="col-12">
-            <q-input v-model="editData.title" label="Title" outlined dense />
+            <q-input v-model="editData.title" :label="$t('inventory.editDialog.fieldTitle')" outlined dense />
           </div>
           <div class="col-12 col-md-6">
-            <q-input v-model.number="editData.price" type="number" label="Selling Price" outlined dense prefix="€" />
+            <q-input v-model.number="editData.price" type="number" :label="$t('inventory.editDialog.price')" outlined dense prefix="€" />
           </div>
           <div class="col-12 col-md-6">
-            <q-input v-model.number="editData.stock" type="number" label="Stock Quantity" outlined dense />
+            <q-input v-model.number="editData.stock" type="number" :label="$t('inventory.editDialog.stock')" outlined dense />
           </div>
           <div class="col-12 col-md-6">
-            <q-input v-model.number="editData.ad_rate" type="number" label="Ad Rate (%)" outlined dense suffix="%" />
+            <q-input v-model.number="editData.ad_rate" type="number" :label="$t('inventory.sponsorDialog.adRate')" outlined dense suffix="%" />
           </div>
           <div class="col-12">
-            <q-input v-model="editData.description" type="textarea" label="Description" outlined dense rows="5" />
+            <q-input v-model="editData.description" type="textarea" :label="$t('inventory.editDialog.description')" outlined dense rows="5" />
           </div>
         </q-card-section>
 
         <q-card-actions align="right" class="q-pa-md">
-          <q-btn flat label="Cancel" v-close-popup />
-          <q-btn unelevated label="Save Changes" color="primary" @click="saveListingEdit" />
+          <q-btn flat :label="$t('common.cancel')" v-close-popup />
+          <q-btn unelevated :label="$t('inventory.editDialog.save')" color="primary" @click="saveListingEdit" />
         </q-card-actions>
       </q-card>
     </q-dialog>
@@ -352,19 +352,19 @@
     <q-dialog v-model="showBulkEditDialog">
       <q-card style="width: 450px; border-radius: 16px;">
         <q-card-section class="row items-center">
-          <div class="text-h6 text-weight-bold">Bulk Price Adjustment</div>
+          <div class="text-h6 text-weight-bold">{{ $t('inventory.bulkEditDialog.title') }}</div>
           <q-space />
           <q-btn icon="close" flat round dense v-close-popup />
         </q-card-section>
 
         <q-card-section class="q-pt-none">
-          <p class="text-body2 text-grey-6">Adjust the selling price of {{ selected.length }} items by a percentage or fixed amount.</p>
+          <p class="text-body2 text-grey-6">{{ $t('inventory.bulkEditDialog.subtitle', { count: selected.length }) }}</p>
           <div class="row q-col-gutter-md">
             <div class="col-12">
               <q-select
                 v-model="bulkEditData.price_change_type"
-                :options="[{label: 'Percentage (%)', value: 'PERCENT'}, {label: 'Fixed Amount (€)', value: 'FIXED'}]"
-                label="Adjustment Type"
+                :options="[{label: $t('inventory.bulkEditDialog.options.percent'), value: 'PERCENT'}, {label: $t('inventory.bulkEditDialog.options.fixed'), value: 'FIXED'}]"
+                :label="$t('inventory.bulkEditDialog.type')"
                 outlined
                 dense
                 emit-value
@@ -375,7 +375,7 @@
               <q-input
                 v-model.number="bulkEditData.price_change_value"
                 type="number"
-                label="Value"
+                :label="$t('inventory.bulkEditDialog.value')"
                 outlined
                 dense
                 :hint="bulkEditData.price_change_type === 'PERCENT' ? 'e.g., 5 for +5%, -3 for -3%' : 'e.g., 2 for +2€, -1.5 for -1.5€'"
@@ -385,8 +385,8 @@
         </q-card-section>
 
         <q-card-actions align="right" class="q-pa-md">
-          <q-btn flat label="Cancel" v-close-popup />
-          <q-btn unelevated label="Apply Bulk Changes" color="primary" @click="saveBulkEdit" />
+          <q-btn flat :label="$t('common.cancel')" v-close-popup />
+          <q-btn unelevated :label="$t('inventory.bulkEditDialog.apply')" color="primary" @click="saveBulkEdit" />
         </q-card-actions>
       </q-card>
     </q-dialog>
@@ -397,12 +397,14 @@
 <script>
 import { ref, onMounted, computed, reactive } from 'vue';
 import { useQuasar } from 'quasar';
+import { useI18n } from 'vue-i18n';
 import { api } from 'boot/axios';
 
 export default {
   name: 'InventoryListPage',
   setup() {
     const $q = useQuasar();
+    const { t } = useI18n();
     const inventory = ref([]);
     const selected = ref([]);
     const loading = ref(false);
@@ -456,13 +458,13 @@ export default {
     const totalViews = computed(() => inventory.value.reduce((sum, i) => sum + i.views, 0));
 
     const columns = [
-      { name: 'product', align: 'left', label: 'Product & Store', field: 'title', sortable: true },
-      { name: 'performance', align: 'center', label: 'Performance (Monthly)', field: 'views', sortable: true },
-      { name: 'stock', align: 'center', label: 'Stock', field: 'stock', sortable: true },
-      { name: 'price', align: 'right', label: 'Price (SELL)', field: 'price', sortable: true },
-      { name: 'profit', align: 'right', label: 'Profit (Net/ADV)', field: 'profit', sortable: true },
-      { name: 'status', align: 'center', label: 'Status', field: 'status', sortable: true },
-      { name: 'actions', align: 'right', label: 'Actions' }
+      { name: 'product', align: 'left', label: t('inventory.columns.product'), field: 'title', sortable: true },
+      { name: 'performance', align: 'center', label: t('inventory.columns.performance'), field: 'views', sortable: true },
+      { name: 'stock', align: 'center', label: t('inventory.columns.stock'), field: 'stock', sortable: true },
+      { name: 'price', align: 'right', label: t('inventory.columns.price'), field: 'price', sortable: true },
+      { name: 'profit', align: 'right', label: t('inventory.columns.profit'), field: 'profit', sortable: true },
+      { name: 'status', align: 'center', label: t('inventory.columns.status'), field: 'status', sortable: true },
+      { name: 'actions', align: 'right', label: t('inventory.columns.actions') }
     ];
 
     const fetchInventory = async (props) => {
@@ -485,7 +487,7 @@ export default {
 
       } catch (e) {
         console.error(e);
-        $q.notify({ color: 'negative', message: 'Failed to fetch inventory' });
+        $q.notify({ color: 'negative', message: t('inventory.notifications.fetchError') });
       } finally {
         loading.value = false;
       }
@@ -521,19 +523,19 @@ export default {
 
     const applySponsorship = async () => {
       try {
-        $q.loading.show({ message: 'Applying sponsorship on eBay...' });
+        $q.loading.show({ message: t('inventory.notifications.applyingSponsor') });
         await api.post('/products/inventory/sponsor', {
           groupIds: sponsorData.groupIds,
           ad_rate: sponsorData.ad_rate
         });
         
-        $q.notify({ color: 'positive', message: `Successfully sponsored ${sponsorData.groupIds.length} listings.` });
+        $q.notify({ color: 'positive', message: t('inventory.notifications.sponsorSuccess', { count: sponsorData.groupIds.length }) });
         showSponsorDialog.value = false;
         selected.value = [];
         fetchInventory();
       } catch (e) {
         console.error(e);
-        $q.notify({ color: 'negative', message: 'Failed to apply sponsorship.' });
+        $q.notify({ color: 'negative', message: t('inventory.notifications.sponsorError') });
       } finally {
         $q.loading.hide();
       }
@@ -541,37 +543,37 @@ export default {
 
     const deleteListing = (row) => {
       $q.dialog({
-        title: 'Delete Listing',
-        message: `Are you sure you want to delete "${row.title}"? This will attempt to remove the listing from eBay.`,
+        title: t('inventory.tooltips.delete'),
+        message: t('inventory.notifications.deleteConfirm', { title: row.title }),
         cancel: true,
-        ok: { color: 'negative', label: 'Delete' }
+        ok: { color: 'negative', label: t('inventory.bulkActions.delete') }
       }).onOk(async () => {
         try {
           await api.post('/products/inventory/delete', { groupIds: [row.id] });
-          $q.notify({ color: 'positive', message: 'Listing deletion queued.' });
+          $q.notify({ color: 'positive', message: t('inventory.notifications.deleteStarted') });
           fetchInventory();
         } catch (e) {
           console.error(e);
-          $q.notify({ color: 'negative', message: 'Failed to delete listing.' });
+          $q.notify({ color: 'negative', message: t('inventory.notifications.deleteError') });
         }
       });
     };
 
     const bulkDelete = () => {
       $q.dialog({
-        title: 'Bulk Delete',
-        message: `Delete ${selected.value.length} listings from inventory and eBay?`,
+        title: t('inventory.bulkActions.delete'),
+        message: t('inventory.notifications.bulkDeleteConfirm', { count: selected.value.length }),
         cancel: true,
-        ok: { color: 'negative', label: 'Delete All' }
+        ok: { color: 'negative', label: t('inventory.notifications.deleteAll') }
       }).onOk(async () => {
         try {
           await api.post('/products/inventory/delete', { groupIds: selected.value.map(s => s.id) });
-          $q.notify({ color: 'positive', message: 'Bulk deletion queued.' });
+          $q.notify({ color: 'positive', message: t('inventory.notifications.bulkDeleteStarted') });
           selected.value = [];
           fetchInventory();
         } catch (e) {
           console.error(e);
-          $q.notify({ color: 'negative', message: 'Bulk deletion failed.' });
+          $q.notify({ color: 'negative', message: t('inventory.notifications.bulkDeleteError') });
         }
       });
     };
@@ -590,14 +592,14 @@ export default {
 
     const saveListingEdit = async () => {
       try {
-        $q.loading.show({ message: 'Saving changes and syncing with eBay...' });
+        $q.loading.show({ message: t('inventory.notifications.savingSync') });
         await api.patch(`/products/inventory/${editData.id}`, editData);
-        $q.notify({ color: 'positive', message: 'Listing updated successfully.' });
+        $q.notify({ color: 'positive', message: t('inventory.notifications.updateSuccess') });
         showEditDialog.value = false;
         fetchInventory();
       } catch (e) {
         console.error(e);
-        $q.notify({ color: 'negative', message: 'Failed to update listing.' });
+        $q.notify({ color: 'negative', message: t('inventory.notifications.updateError') });
       } finally {
         $q.loading.hide();
       }
@@ -611,15 +613,15 @@ export default {
 
     const saveBulkEdit = async () => {
       try {
-        $q.loading.show({ message: 'Applying bulk updates...' });
+        $q.loading.show({ message: t('inventory.notifications.applyingBulk') });
         await api.post('/products/inventory/bulk-update', bulkEditData);
-        $q.notify({ color: 'positive', message: `Bulk updated ${selected.value.length} listings.` });
+        $q.notify({ color: 'positive', message: t('inventory.notifications.bulkUpdateSuccess', { count: selected.value.length }) });
         showBulkEditDialog.value = false;
         selected.value = [];
         fetchInventory();
       } catch (e) {
         console.error(e);
-        $q.notify({ color: 'negative', message: 'Bulk update failed.' });
+        $q.notify({ color: 'negative', message: t('inventory.notifications.bulkUpdateError') });
       } finally {
         $q.loading.hide();
       }
@@ -627,22 +629,22 @@ export default {
 
     const bulkRemoveSponsor = () => {
       $q.dialog({
-        title: 'Remove Sponsorship',
-        message: `Remove Promoted Listings sponsorship from ${selected.value.length} items?`,
+        title: t('inventory.bulkActions.removeSponsor'),
+        message: t('inventory.notifications.removeSponsorConfirm', { count: selected.value.length }),
         cancel: true,
-        ok: { color: 'warning', label: 'Remove' }
+        ok: { color: 'warning', label: t('inventory.bulkActions.removeSponsor').split(' ')[0] }
       }).onOk(async () => {
         try {
           await api.post('/products/inventory/sponsor', {
             groupIds: selected.value.map(s => s.id),
             is_sponsored: false
           });
-          $q.notify({ color: 'positive', message: 'Sponsorship removal queued.' });
+          $q.notify({ color: 'positive', message: t('inventory.notifications.removeSponsorStarted') });
           selected.value = [];
           fetchInventory();
         } catch (e) {
           console.error(e);
-          $q.notify({ color: 'negative', message: 'Failed to remove sponsorship.' });
+          $q.notify({ color: 'negative', message: t('inventory.notifications.removeSponsorError') });
         }
       });
     };

@@ -1,15 +1,20 @@
 # Admin Panel Design System
 
-## 1. Color Palette
-- **Primary:** `#6366F1` (Indigo 500) - Used for primary actions, active states.
-- **Secondary:** `#14B8A6` (Teal 500) - Used for secondary actions, accents.
-- **Accent:** `#F43F5E` (Rose 500) - Used for highlights, callouts.
-- **Background (Light):** `#F8FAFC` (Slate 50)
+## 1. Color Palette (AutoDroop Branding)
+- **Primary:** `#8B1A1A` (Deep Maroon/Red) - Primary brand actions, "droop" emphasis.
+- **Accent/Text:** `#121313` (Dark Charcoal) - Primary text, "Auto" emphasis, headers.
+- **Secondary:** `#454F5B` (Light Slate/Grey) - Secondary details, icons, borders.
+- **Background (Light):** `#FFFFFF` (Pure White)
 - **Surface (Light):** `#FFFFFF`
-- **Background (Dark):** `#0F172A` (Slate 900)
-- **Surface (Dark):** `#1E293B` (Slate 800)
+- **Background (Dark):** `#1A1C1E` (Deep Zinc/Charcoal)
+- **Surface (Dark):** `#121313` (Dark Charcoal)
+- **Primary-1:** `#FBEBEB` (Light Pinkish Maroon) - Used for badges, avatars, and soft backgrounds.
 
-## 2. Typography Scale (Inter / Roboto)
+## 2. Branding Guidelines
+- **Logo/Text:** Always use Charcoal for "**Auto**" and Maroon for "**droop**".
+- **Visual Style:** High-contrast, enterprise-grade, and mobile-responsive.
+
+## 3. Typography Scale (Inter / Roboto)
 - **h1:** 2.5rem (40px), 700 weight, tight tracking
 - **h2:** 2rem (32px), 600 weight
 - **h3:** 1.5rem (24px), 600 weight
@@ -18,20 +23,20 @@
 - **body2:** 0.875rem (14px), 400 weight (Secondary text)
 - **caption:** 0.75rem (12px), 500 weight, uppercase
 
-## 3. Spacing System (8pt Grid)
+## 4. Spacing System (8pt Grid)
 - `xs`: 4px | `sm`: 8px | `md`: 16px | `lg`: 24px | `xl`: 32px | `xxl`: 48px
 
-## 4. Border Radius System
-- **Small (Inputs, Badges):** 6px
-- **Medium (Buttons, Cards):** 12px
+## 5. Border Radius System
+- **Small (Inputs, Badges):** 8px
+- **Medium (Buttons, Cards):** 16px
 - **Large (Modals, Bottom Sheets):** 24px
 
-## 5. Elevation System (Shadows)
-- **Light Mode:** Soft, dispersed shadows. `box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1)`
-- **Dark Mode:** Shadows are largely replaced by borders `border: 1px solid rgba(255,255,255,0.05)` and subtle glowing surface colors.
+## 6. Elevation System (Shadows)
+- **Light Mode:** Modern soft shadows. `box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.02)`
+- **Dark Mode:** Shadows are largely replaced by borders `border: 1px solid rgba(255,255,255,0.1)` and surface elevation colors.
 
-## 6. Component Principles
-- **Buttons:** Fully rounded or 12px radius. No uppercase text. Smooth hover states.
-- **Forms:** Filled inputs with background color `#F1F5F9` (Light) or `#334155` (Dark). No underline.
-- **Tables:** Flat design, sticky headers, striped rows only on hover.
-- **Animations:** 300ms `ease-in-out` for theme toggles and drawer slides. 150ms for button hovers.
+## 7. Component Principles
+- **Buttons:** 8px radius. No uppercase text. Smooth active scaling effect (0.97).
+- **Forms:** Filled inputs with background color `rgba(0, 0, 0, 0.03)` (Light) or `rgba(255, 255, 255, 0.03)` (Dark). No underline.
+- **Tables:** Flat design, sticky headers, rounded borders.
+- **Animations:** 400ms `cubic-bezier(0.4, 0, 0.2, 1)` for theme toggles and layout transitions.

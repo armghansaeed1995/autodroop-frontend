@@ -16,7 +16,7 @@
 
         <q-toolbar-title class="text-weight-bold row items-center">
           <q-icon name="las la-cube" color="primary" size="28px" class="q-mr-sm" />
-          <span class="gt-xs">Admin<span class="text-primary">Panel</span></span>
+          <span class="gt-xs text-charcoal">Auto<span class="text-primary">droop</span></span>
         </q-toolbar-title>
 
         <q-space />
@@ -38,7 +38,7 @@
             flat round dense
             :icon="isDark ? 'las la-sun' : 'las la-moon'"
             @click="toggleTheme"
-            :aria-label="isDark ? 'Light Mode' : 'Dark Mode'"
+            :aria-label="isDark ? $t('layout.lightMode') : $t('layout.darkMode')"
           />
         </div>
 
@@ -50,7 +50,7 @@
                 <q-item-section avatar>
                   <q-icon name="las la-sign-out-alt" />
                 </q-item-section>
-                <q-item-section>Logout</q-item-section>
+                <q-item-section>{{ $t('layout.logout') }}</q-item-section>
               </q-item>
             </q-list>
           </q-menu>
@@ -66,7 +66,7 @@
       class="desktop-drawer"
     >
       <div class="q-pa-md text-caption text-grey-6 text-uppercase text-weight-bold tracking-wide">
-        Main Menu
+        {{ $t('layout.mainMenu') }}
       </div>
       <q-list class="q-px-sm">
         <q-item
@@ -86,7 +86,7 @@
       </q-list>
 
       <div class="q-pa-md text-caption text-grey-6 text-uppercase text-weight-bold tracking-wide q-mt-md">
-        System
+        {{ $t('layout.system') }}
       </div>
       <q-list class="q-px-sm">
         <template v-for="nav in filteredSystemNavItems" :key="nav.to || nav.label">
@@ -160,7 +160,7 @@
 
         <q-tab
           icon="las la-ellipsis-h"
-          label="More"
+          :label="$t('layout.more')"
           @click="mobileMoreMenuOpen = true"
           class="bottom-tab"
         />
@@ -170,7 +170,7 @@
     <q-dialog v-model="mobileMoreMenuOpen" position="bottom">
       <q-card class="mobile-more-menu" :class="isDark ? 'bg-surface-dark' : 'bg-white'">
         <q-card-section class="row items-center justify-between q-pb-none">
-          <div class="text-h6 text-weight-bold">Menu</div>
+          <div class="text-h6 text-weight-bold">{{ $t('layout.menu') }}</div>
           <q-btn icon="las la-times" flat round dense v-close-popup />
         </q-card-section>
 
@@ -225,7 +225,7 @@
           <div class="row items-center justify-between q-mb-md px-sm">
             <div class="row items-center text-weight-medium">
               <q-icon name="las la-language" size="24px" class="q-mr-sm text-grey-6" />
-              Language
+              {{ $t('layout.language') }}
             </div>
             <q-select
               v-model="currentLang"
@@ -238,7 +238,7 @@
           <div class="row items-center justify-between px-sm">
             <div class="row items-center text-weight-medium">
               <q-icon :name="isDark ? 'las la-moon' : 'las la-sun'" size="24px" class="q-mr-sm text-grey-6" />
-              Dark Mode
+              {{ $t('layout.darkMode') }}
             </div>
             <q-toggle v-model="isDarkModeToggle" @update:model-value="toggleTheme" color="primary" />
           </div>
@@ -246,7 +246,7 @@
           <q-btn
             color="negative"
             icon="las la-sign-out-alt"
-            label="Logout"
+            :label="$t('layout.logout')"
             outline
             class="full-width q-mt-lg"
             @click="logout"
@@ -309,28 +309,28 @@ export default {
     // Filtered navigation items based on role
     filteredMainNavItems() { // Specific to Customer layout
       const allItems = [
-        { label: 'My Dashboard', icon: 'las la-home', to: '/customer/dashboard', roles: ['owner', 'staff'] },
-        { label: 'Product Drafts', icon: 'las la-box-open', to: '/customer/product-drafts', roles: ['owner', 'staff'] },
-        { label: 'Inventory', icon: 'las la-boxes', to: '/customer/inventory', roles: ['owner', 'staff'] },
-        { label: 'Orders', icon: 'las la-receipt', to: '/customer/orders', roles: ['owner', 'staff'] },
-        { label: 'Messages', icon: 'las la-comments', to: '/customer/messages', roles: ['owner', 'staff'] },
+        { label: this.$t('layout.nav.dashboard'), icon: 'las la-home', to: '/customer/dashboard', roles: ['owner', 'staff'] },
+        { label: this.$t('layout.nav.productDrafts'), icon: 'las la-box-open', to: '/customer/product-drafts', roles: ['owner', 'staff'] },
+        { label: this.$t('layout.nav.inventory'), icon: 'las la-boxes', to: '/customer/inventory', roles: ['owner', 'staff'] },
+        { label: this.$t('layout.nav.orders'), icon: 'las la-receipt', to: '/customer/orders', roles: ['owner', 'staff'] },
+        { label: this.$t('layout.nav.messages'), icon: 'las la-comments', to: '/customer/messages', roles: ['owner', 'staff'] },
       ];
       return allItems.filter(item => item.roles.includes(this.userRole));
     },
     filteredSystemNavItems() { // Specific to Customer layout
       const allItems = [
-        { label: 'Message Templates', icon: 'las la-envelope', to: '/customer/message-templates', roles: ['owner', 'staff'] },
-        { label: 'Suppliers', icon: 'las la-warehouse', to: '/customer/suppliers', roles: ['owner', 'staff'] },
+        { label: this.$t('layout.nav.messageTemplates'), icon: 'las la-envelope', to: '/customer/message-templates', roles: ['owner', 'staff'] },
+        { label: this.$t('layout.nav.suppliers'), icon: 'las la-warehouse', to: '/customer/suppliers', roles: ['owner', 'staff'] },
         { 
-          label: 'Settings', 
+          label: this.$t('layout.nav.settings'), 
           icon: 'las la-cog', 
           to: '/customer/settings', 
           roles: ['owner', 'staff'],
           children: [
-            { label: 'eBay Accounts', icon: 'lab la-ebay', to: '/customer/settings/ebay-accounts' },
-            { label: 'Supplier Accounts', icon: 'las la-truck-loading', to: '/customer/settings/supplier-accounts' },
-            { label: 'Preferences & Tools', icon: 'las la-tools', to: '/customer/settings/preferences' },
-            { label: 'Profile & Billing', icon: 'las la-file-invoice-dollar', to: '/customer/settings/billing' }
+            { label: this.$t('layout.nav.ebayAccounts'), icon: 'lab la-ebay', to: '/customer/settings/ebay-accounts' },
+            { label: this.$t('layout.nav.supplierAccounts'), icon: 'las la-truck-loading', to: '/customer/settings/supplier-accounts' },
+            { label: this.$t('layout.nav.preferences'), icon: 'las la-tools', to: '/customer/settings/preferences' },
+            { label: this.$t('layout.nav.billing'), icon: 'las la-file-invoice-dollar', to: '/customer/settings/billing' }
           ]
         },
       ];

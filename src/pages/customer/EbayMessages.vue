@@ -130,7 +130,7 @@
 </template>
 
 <script>
-import { ref, computed, onMounted, watch, nextTick } from 'vue';
+import { ref, computed, onMounted, nextTick } from 'vue';
 import { api } from 'boot/axios';
 import { useQuasar } from 'quasar';
 
@@ -203,6 +203,7 @@ export default {
           conversations.value[idx].last_message_at = res.data.sent_at;
         }
       } catch (e) {
+        console.error(e);
         $q.notify({ type: 'negative', message: 'Failed to send reply' });
       } finally {
         sending.value = false;

@@ -16,7 +16,7 @@
 
         <q-toolbar-title class="text-weight-bold row items-center">
           <q-icon name="las la-cube" color="primary" size="28px" class="q-mr-sm" />
-          <span class="gt-xs">Admin<span class="text-primary">Panel</span></span>
+          <span class="gt-xs text-charcoal">Auto<span class="text-primary">Droop</span> Admin</span>
         </q-toolbar-title>
 
         <q-space />
@@ -38,7 +38,7 @@
             flat round dense
             :icon="isDark ? 'las la-sun' : 'las la-moon'"
             @click="toggleTheme"
-            :aria-label="isDark ? 'Light Mode' : 'Dark Mode'"
+            :aria-label="isDark ? $t('layout.lightMode') : $t('layout.darkMode')"
           />
         </div>
 
@@ -50,7 +50,7 @@
                 <q-item-section avatar>
                   <q-icon name="las la-sign-out-alt" />
                 </q-item-section>
-                <q-item-section>Logout</q-item-section>
+                <q-item-section>{{ $t('layout.logout') }}</q-item-section>
               </q-item>
             </q-list>
           </q-menu>

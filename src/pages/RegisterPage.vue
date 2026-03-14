@@ -3,11 +3,13 @@
     <q-card class="register-card overflow-hidden" flat>
       <div class="row full-height">
 
-        <div class="col-12 col-md-6 bg-secondary text-white flex flex-center q-pa-xl register-branding sm-hide xs-hide">
+        <div class="col-12 col-md-6 flex flex-center q-pa-xl register-branding sm-hide xs-hide" :class="isDark ? 'bg-dark' : 'bg-white'">
           <div class="text-center">
-            <q-icon name="las la-rocket" size="80px" class="q-mb-md" />
-            <h2 class="text-h3 text-weight-bold q-my-none">Join Us</h2>
-            <p class="text-subtitle1 q-mt-md opacity-80">
+            <q-icon name="las la-rocket" color="primary" size="80px" class="q-mb-md" />
+            <h2 class="text-h3 text-weight-bold q-my-none text-charcoal">
+              Auto<span class="text-primary">droop</span>
+            </h2>
+            <p class="text-subtitle1 q-mt-md text-slate opacity-80">
               Create an account to start managing your platform today.
             </p>
           </div>
@@ -194,6 +196,11 @@ export default {
       isConfirmPwdVisible: false,
       acceptTerms: false,
       loading: false
+    }
+  },
+  computed: {
+    isDark() {
+      return this.$q.dark.isActive;
     }
   },
   mounted() {

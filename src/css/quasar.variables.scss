@@ -1,9 +1,10 @@
 // ==========================================
 // BRAND COLORS
 // ==========================================
-$primary   : #4338CA; // Deep Royal Violet (Trustworthy, Premium)
-$secondary : #0EA5E9; // Electric Sky Blue (Great for data/charts)
-$accent    : #F59E0B; // Vibrant Amber (Pops against dark backgrounds)
+$primary   : #8B1A1A; // Deep Maroon/Red (Primary brand actions, "Droop" emphasis)
+$primary-1 : #FBEBEB; // Light Pinkish Maroon (Badges, Avatars)
+$secondary : #454F5B; // Light Slate/Grey (Secondary details, icons, borders)
+$accent    : #121313; // Dark Charcoal (Primary text, "Auto" emphasis, headers)
 
 // ==========================================
 // STATUS COLORS
@@ -16,18 +17,18 @@ $warning   : #F59E0B; // Amber
 // ==========================================
 // THEME TOKENS: LIGHT MODE
 // ==========================================
-$bg-light      : #F4F4F5; // Zinc 100 - A slightly warmer, premium off-white
+$bg-light      : #FFFFFF; // Pure White (Backgrounds)
 $surface-light : #FFFFFF;
-$text-light    : #27272A; // Zinc 800
-$border-light  : rgba(0, 0, 0, 0.08);
+$text-light    : #121313; // Dark Charcoal (Primary text)
+$border-light  : rgba(69, 79, 91, 0.15); // Light Slate/Grey as border
 
 // ==========================================
 // THEME TOKENS: DARK MODE
 // ==========================================
-$bg-dark       : #09090B; // Zinc 950 - OLED-friendly deep black
-$surface-dark  : #18181B; // Zinc 900 - Distinct elevation from background
-$text-dark     : #FAFAFA; // Zinc 50
-$border-dark   : rgba(255, 255, 255, 0.08);
+$bg-dark       : #1A1C1E; // Deep Zinc/Charcoal (OLED-friendly)
+$surface-dark  : #121313; // Dark Charcoal as surface
+$text-dark     : #FFFFFF; // Pure White as text
+$border-dark   : rgba(255, 255, 255, 0.1);
 
 // ==========================================
 // STRUCTURAL TOKENS

@@ -78,6 +78,8 @@
 import { ref, onMounted } from 'vue';
 import { api } from 'boot/axios';
 import BaseChart from 'src/components/base/BaseChart.vue'
+import { LocalStorage, useQuasar } from 'quasar';
+import { useRouter } from 'vue-router';
 
 export default {
   name: 'PageDashboard',
@@ -85,12 +87,45 @@ export default {
     BaseChart
   },
   setup() {
+    const $q = useQuasar();
+    const router = useRouter();
     const kpis = ref([
       { title: 'Total Revenue', value: '$0', icon: 'las la-wallet', color: 'primary', trend: '+0%', trendUp: true },
       { title: 'Active Regions', value: '0', icon: 'las la-globe', color: 'secondary', trend: 'Global', trendUp: true },
       { title: 'Most Used Supplier', value: '...', icon: 'las la-truck', color: 'positive', trend: 'Live', trendUp: true },
       { title: 'Total Profiles', value: '0', icon: 'las la-layer-group', color: 'warning', trend: 'Active', trendUp: true }
     ]);
+
+    const checkEbayConnection = async () => {
+      const CACHE_KEY = 'admin_ebay_connected';
+      const CACHE_EXPIRY_KEY = 'admin_ebay_connected_expiry';
+      const cachedStatus = LocalStorage.getItem(CACHE_KEY);
+      const expiry = LocalStorage.getItem(CACHE_EXPIRY_KEY);
+
+      // If cached and not expired (24h), skip check
+      if (cachedStatus === true && expiry && Date.now() < expiry) {
+        return;
+      }
+
+      try {
+        const res = await api.get('/admin/ebay/status');
+        if (res.data && res.data.connected && !res.data.is_expired) {
+          // Cache status for 24 hours
+          LocalStorage.set(CACHE_KEY, true);
+          LocalStorage.set(CACHE_EXPIRY_KEY, Date.now() + 24 * 60 * 60 * 1000);
+        } else {
+          LocalStorage.set(CACHE_KEY, false);
+          $q.notify({
+            type: 'warning',
+            message: 'Admin eBay account not connected. Redirecting to settings...',
+            timeout: 3000
+          });
+          router.push('/admin/settings');
+        }
+      } catch (e) {
+        console.error('Failed to check eBay connection', e);
+      }
+    };
 
     const fetchStats = async () => {
       try {
@@ -105,7 +140,10 @@ export default {
       }
     };
 
-    onMounted(fetchStats);
+    onMounted(async () => {
+      await checkEbayConnection();
+      fetchStats();
+    });
 
     return {
       kpis,

@@ -1,8 +1,8 @@
 <template>
   <q-page padding>
     <div class="q-mb-xl">
-      <h1 class="text-h4 text-weight-bold q-my-none">Orders List</h1>
-      <p class="text-body2 text-grey-6 q-mt-xs">View and manage all customer orders.</p>
+      <h1 class="text-h4 text-weight-bold q-my-none">{{ $t('orders.title') }}</h1>
+      <p class="text-body2 text-grey-6 q-mt-xs">{{ $t('orders.subtitle') }}</p>
     </div>
 
     <q-card flat class="orders-card">
@@ -18,21 +18,21 @@
             narrow-indicator
             no-caps
           >
-            <q-tab name="all" label="All" />
-            <q-tab name="pending" label="Pending">
+            <q-tab name="all" :label="$t('orders.tabs.all')" />
+            <q-tab name="pending" :label="$t('orders.tabs.pending')">
               <q-badge v-if="pendingCount > 0" color="red" floating>{{ pendingCount }}</q-badge>
             </q-tab>
-            <q-tab name="ordered" label="Ordered" />
-            <q-tab name="shipped" label="Shipped" />
-            <q-tab name="delivered" label="Delivered" />
-            <q-tab name="cancelled" label="Cancelled" />
+            <q-tab name="ordered" :label="$t('orders.tabs.ordered')" />
+            <q-tab name="shipped" :label="$t('orders.tabs.shipped')" />
+            <q-tab name="delivered" :label="$t('orders.tabs.delivered')" />
+            <q-tab name="cancelled" :label="$t('orders.tabs.cancelled')" />
           </q-tabs>
         </div>
 
         <div class="row items-center q-gutter-sm">
           <q-input
             v-model="filter"
-            placeholder="Search orders..."
+            :placeholder="$t('orders.filters.searchPlaceholder')"
             dense
             outlined
             class="search-input"
@@ -45,7 +45,7 @@
             outline
             color="primary"
             icon="las la-sync-alt"
-            label="Update Orders"
+            :label="$t('orders.filters.updateOrders')"
             @click="syncOrders"
             :loading="syncing"
           />
@@ -76,14 +76,14 @@
               />
               <div class="column">
                 <div class="text-weight-bold ellipsis-2-lines text-body2" style="max-width: 250px">
-                  {{ props.row.main_title || 'No Title Available' }}
+                  {{ props.row.main_title || $t('orders.details.noTitle') }}
                 </div>
                 <div class="row items-center q-gutter-xs q-mt-xs">
                   <q-badge outline color="blue-7" size="sm">
-                    SKU: {{ props.row.sku || 'N/A' }}
+                    {{ $t('orders.details.sku') }} {{ props.row.sku || 'N/A' }}
                   </q-badge>
                   <div class="text-caption text-grey-7">
-                    Qty: {{ props.row.total_quantity }}
+                    {{ $t('orders.details.qty') }} {{ props.row.total_quantity }}
                   </div>
                 </div>
               </div>
@@ -103,7 +103,7 @@
               {{ props.row.status }}
             </q-chip>
             <div v-if="props.row.tracking_issue" class="text-caption text-negative text-weight-bold q-mt-xs">
-              <q-icon name="las la-exclamation-circle" /> Tracking Issue
+              <q-icon name="las la-exclamation-circle" /> {{ $t('orders.details.trackingIssue') }}
             </div>
           </q-td>
         </template>
@@ -113,11 +113,11 @@
           <q-td :props="props">
             <div class="column items-end">
               <div class="row items-center q-gutter-xs">
-                <span class="text-caption text-grey-7">SELL:</span>
+                <span class="text-caption text-grey-7">{{ $t('orders.details.sell') }}</span>
                 <span class="text-weight-bold">{{ formatPrice(props.row.total_sale_amount, props.row.currency) }}</span>
               </div>
               <div class="row items-center q-gutter-xs">
-                <span class="text-caption text-grey-7">BUY:</span>
+                <span class="text-caption text-grey-7">{{ $t('orders.details.buy') }}</span>
                 <span class="text-grey-9">{{ formatPrice(props.row.total_purchase_cost, props.row.currency) }}</span>
               </div>
               <q-badge
@@ -125,7 +125,7 @@
                 class="q-mt-xs text-weight-bold"
                 outline
               >
-                PROFIT: {{ formatPrice(props.row.profit, props.row.currency) }}
+                {{ $t('orders.details.profit') }} {{ formatPrice(props.row.profit, props.row.currency) }}
               </q-badge>
             </div>
           </q-td>
@@ -142,7 +142,7 @@
                 size="sm"
                 color="primary"
                 class="q-px-none justify-start"
-                :label="'SELL: ' + (props.row.listing_id || 'ID')"
+                :label="$t('orders.details.sell') + ' ' + (props.row.listing_id || 'ID')"
                 icon="las la-external-link-alt"
                 @click.stop="openExternalLink(props.row.listing_url || '#')"
               />
@@ -153,7 +153,7 @@
                 size="sm"
                 color="orange-8"
                 class="q-px-none justify-start"
-                :label="'BUY: ' + (props.row.supplier_pid || 'ASIN')"
+                :label="$t('orders.details.buy') + ' ' + (props.row.supplier_pid || 'ASIN')"
                 icon="las la-shopping-cart"
                 @click.stop="openExternalLink(props.row.supplier_url || '#')"
               />
@@ -167,7 +167,7 @@
             <div class="column">
               <div class="text-weight-medium">{{ formatDate(props.row.order_received_date) }}</div>
               <div v-if="props.row.marketplace_max_estimated_delivery_date" class="text-caption text-grey-6">
-                Est: {{ formatDate(props.row.marketplace_max_estimated_delivery_date) }}
+                {{ $t('orders.details.est') }} {{ formatDate(props.row.marketplace_max_estimated_delivery_date) }}
               </div>
             </div>
           </q-td>
@@ -177,10 +177,10 @@
         <template v-slot:body-cell-actions="props">
           <q-td :props="props" class="q-gutter-xs">
             <q-btn outline round dense color="primary" icon="las la-eye" @click="openOrderModal(props.row)">
-              <q-tooltip>View Details</q-tooltip>
+              <q-tooltip>{{ $t('orders.details.viewDetails') }}</q-tooltip>
             </q-btn>
             <q-btn outline round dense color="secondary" icon="las la-truck" @click="fulfillOrder(props.row)" v-if="props.row.status === 'pending'">
-              <q-tooltip>Fulfill Order</q-tooltip>
+              <q-tooltip>{{ $t('orders.details.fulfillOrder') }}</q-tooltip>
             </q-btn>
           </q-td>
         </template>
@@ -192,10 +192,10 @@
   <q-dialog v-model="orderModal.open" maximized transition-show="slide-up" transition-hide="slide-down">
     <q-card class="column full-height bg-grey-1">
       <q-bar class="bg-primary text-white q-py-lg">
-        <div class="text-h6">Order #{{ orderModal.data?.external_order_id }}</div>
+        <div class="text-h6">{{ $t('orders.modal.orderNum', { id: orderModal.data?.external_order_id }) }}</div>
         <q-space />
         <q-btn dense flat icon="las la-times" v-close-popup>
-          <q-tooltip class="bg-white text-primary">Close</q-tooltip>
+          <q-tooltip class="bg-white text-primary">{{ $t('common.cancel') }}</q-tooltip>
         </q-btn>
       </q-bar>
 
@@ -206,7 +206,7 @@
             <q-card flat bordered class="q-mb-md">
               <q-item>
                 <q-item-section>
-                  <q-item-label class="text-h6 text-weight-bold">Items</q-item-label>
+                  <q-item-label class="text-h6 text-weight-bold">{{ $t('orders.modal.items') }}</q-item-label>
                 </q-item-section>
                 <q-item-section side>
                   <q-chip
@@ -225,9 +225,9 @@
                   <q-img :src="orderModal.data?.main_image" class="rounded-borders" style="width: 80px; height: 80px" />
                   <div class="col q-ml-md">
                     <div class="text-subtitle1 text-weight-bold">{{ item.title }}</div>
-                    <div class="text-caption text-grey-7">Item ID: {{ item.external_item_id }}</div>
+                    <div class="text-caption text-grey-7">{{ $t('orders.modal.itemId') }} {{ item.external_item_id }}</div>
                     <div class="row items-center justify-between q-mt-sm">
-                      <div class="text-body2">Quantity: <span class="text-weight-bold">{{ item.quantity }}</span></div>
+                      <div class="text-body2">{{ $t('orders.modal.quantity') }} <span class="text-weight-bold">{{ item.quantity }}</span></div>
                       <div class="text-h6 text-primary">{{ formatPrice(item.sale_price, orderModal.data?.currency) }}</div>
                     </div>
                   </div>
@@ -237,7 +237,7 @@
 
             <q-card flat bordered class="q-mb-md">
               <q-card-section>
-                <div class="text-h6 text-weight-bold q-mb-sm">Status History</div>
+                <div class="text-h6 text-weight-bold q-mb-sm">{{ $t('orders.modal.statusHistory') }}</div>
                 <q-timeline color="primary" dense>
                   <q-timeline-entry
                     v-for="(history, index) in orderModal.data?.status_history"
@@ -247,8 +247,8 @@
                   >
                     <div v-html="history.markdown_description"></div>
                   </q-timeline-entry>
-                  <q-timeline-entry v-if="!orderModal.data?.status_history || orderModal.data?.status_history.length === 0" subtitle="No history available">
-                    Status history will appear here as the order progresses.
+                  <q-timeline-entry v-if="!orderModal.data?.status_history || orderModal.data?.status_history.length === 0" :subtitle="$t('orders.modal.noHistory')">
+                    {{ $t('orders.modal.historySubtitle') }}
                   </q-timeline-entry>
                 </q-timeline>
               </q-card-section>
@@ -259,25 +259,25 @@
           <div class="col-12 col-md-4">
             <q-card flat bordered class="q-mb-md">
               <q-card-section>
-                <div class="text-h6 text-weight-bold q-mb-sm">Buyer Information</div>
+                <div class="text-h6 text-weight-bold q-mb-sm">{{ $t('orders.modal.buyerInfo') }}</div>
                 <div class="column q-gutter-xs">
                   <div class="row justify-between">
-                    <span class="text-grey-7">Name:</span>
+                    <span class="text-grey-7">{{ $t('orders.modal.name') }}</span>
                     <span class="text-weight-bold">{{ orderModal.data?.buyer_full_name }}</span>
                   </div>
                   <div class="row justify-between">
-                    <span class="text-grey-7">Username:</span>
+                    <span class="text-grey-7">{{ $t('orders.modal.username') }}</span>
                     <span class="text-primary text-weight-bold">{{ orderModal.data?.marketplace_buyer_id }}</span>
                   </div>
                   <div class="row justify-between">
-                    <span class="text-grey-7">Phone:</span>
+                    <span class="text-grey-7">{{ $t('orders.modal.phone') }}</span>
                     <span>{{ orderModal.data?.buyer_phone || 'N/A' }}</span>
                   </div>
                 </div>
 
                 <q-separator class="q-my-md" />
 
-                <div class="text-subtitle2 text-weight-bold q-mb-sm">Shipping Address</div>
+                <div class="text-subtitle2 text-weight-bold q-mb-sm">{{ $t('orders.modal.shippingAddress') }}</div>
                 <div class="text-body2 text-grey-9">
                   {{ orderModal.data?.shipping_street1 }}<br />
                   <span v-if="orderModal.data?.shipping_street2">{{ orderModal.data?.shipping_street2 }}<br /></span>
@@ -289,21 +289,21 @@
 
             <q-card flat bordered class="q-mb-md bg-white">
               <q-card-section>
-                <div class="text-h6 text-weight-bold q-mb-sm">Financial Summary</div>
+                <div class="text-h6 text-weight-bold q-mb-sm">{{ $t('orders.modal.financialSummary') }}</div>
                 <div class="column q-gutter-sm">
                   <div class="row justify-between">
-                    <span>Order Total (Sell)</span>
+                    <span>{{ $t('orders.modal.totalSell') }}</span>
                     <span class="text-weight-bold">{{ formatPrice(orderModal.data?.total_sale_amount, orderModal.data?.currency) }}</span>
                   </div>
                   <div class="row justify-between text-grey-8">
-                    <span>Purchase Cost (Buy)</span>
+                    <span>{{ $t('orders.modal.costBuy') }}</span>
                     <span>-{{ formatPrice(orderModal.data?.total_purchase_cost, orderModal.data?.currency) }}</span>
                   </div>
                   
                   <q-expansion-item
                     dense
                     dense-toggle
-                    label="eBay Fees"
+                    :label="$t('orders.modal.ebayFees')"
                     class="text-grey-8"
                     header-class="q-px-none"
                   >
@@ -318,7 +318,7 @@
                   <q-separator class="q-my-sm" />
 
                   <div class="row justify-between text-h6 text-weight-bolder">
-                    <span :class="parseFloat(orderModal.data?.profit) >= 0 ? 'text-positive' : 'text-negative'">Estimated Profit</span>
+                    <span :class="parseFloat(orderModal.data?.profit) >= 0 ? 'text-positive' : 'text-negative'">{{ $t('orders.modal.estProfit') }}</span>
                     <span :class="parseFloat(orderModal.data?.profit) >= 0 ? 'text-positive' : 'text-negative'">
                       {{ formatPrice(orderModal.data?.profit, orderModal.data?.currency) }}
                     </span>
@@ -329,11 +329,11 @@
 
             <q-card flat bordered class="q-mb-md">
               <q-card-section>
-                <div class="text-h6 text-weight-bold q-mb-sm">Actions</div>
+                <div class="text-h6 text-weight-bold q-mb-sm">{{ $t('layout.more') }}</div>
                 <div class="column q-gutter-sm">
-                  <q-btn color="primary" icon="las la-truck" label="Fulfill Order" @click="fulfillOrder(orderModal.data)" unelevated />
-                  <q-btn outline color="secondary" icon="las la-comment" label="Message Buyer" @click="messageBuyer(orderModal.data)" />
-                  <q-btn outline color="grey-7" icon="las la-times-circle" label="Cancel Order" @click="cancelOrder(orderModal.data)" />
+                  <q-btn color="primary" icon="las la-truck" :label="$t('orders.details.fulfillOrder')" @click="fulfillOrder(orderModal.data)" unelevated />
+                  <q-btn outline color="secondary" icon="las la-comment" :label="$t('orders.details.messageBuyer')" @click="messageBuyer(orderModal.data)" />
+                  <q-btn outline color="grey-7" icon="las la-times-circle" :label="$t('orders.details.cancelOrder')" @click="cancelOrder(orderModal.data)" />
                 </div>
               </q-card-section>
             </q-card>
@@ -363,12 +363,12 @@ export default {
         rowsNumber: 0
       },
       columns: [
-        { name: 'product', label: 'Product', align: 'left', field: 'main_title', sortable: false },
-        { name: 'status', label: 'Status', align: 'center', field: 'status', sortable: true },
-        { name: 'price_profit', label: 'Price & Profit', align: 'right', field: 'total_sale_amount', sortable: true },
-        { name: 'item_ids', label: 'Item IDs', align: 'left', field: 'listing_id', sortable: false },
-        { name: 'dates', label: 'Order Date', align: 'left', field: 'order_received_date', sortable: true },
-        { name: 'actions', label: 'Actions', align: 'right', field: 'actions' }
+        { name: 'product', label: this.$t('orders.columns.product'), align: 'left', field: 'main_title', sortable: false },
+        { name: 'status', label: this.$t('orders.columns.status'), align: 'center', field: 'status', sortable: true },
+        { name: 'price_profit', label: this.$t('orders.columns.priceProfit'), align: 'right', field: 'total_sale_amount', sortable: true },
+        { name: 'item_ids', label: this.$t('orders.columns.itemIds'), align: 'left', field: 'listing_id', sortable: false },
+        { name: 'dates', label: this.$t('orders.columns.orderDate'), align: 'left', field: 'order_received_date', sortable: true },
+        { name: 'actions', label: this.$t('orders.columns.actions'), align: 'right', field: 'actions' }
       ],
       orderModal: {
         open: false,
@@ -394,7 +394,7 @@ export default {
         const response = await this.$api.get('/orders/count/pending');
         this.pendingCount = response.data.count;
       } catch (error) {
-        console.error('Failed to fetch pending order count:', error);
+        console.error(this.$t('orders.notifications.fetchCountError'), error);
       }
     },
     async fetchOrders() {
@@ -413,7 +413,7 @@ export default {
       } catch (error) {
         this.$q.notify({
           type: 'negative',
-          message: error.response?.data?.message || 'Failed to fetch orders.',
+          message: error.response?.data?.message || this.$t('orders.notifications.fetchOrdersError'),
           icon: 'las la-exclamation-triangle',
           position: 'top-right'
         });
@@ -438,7 +438,7 @@ export default {
         await this.fetchPendingCount();
         this.$q.notify({
           type: 'positive',
-          message: 'Orders synchronized successfully.',
+          message: this.$t('orders.notifications.syncSuccess'),
           icon: 'las la-check-circle',
           position: 'top-right'
         });
@@ -508,27 +508,27 @@ export default {
     fulfillOrder(order) {
       this.$q.notify({
         type: 'info',
-        message: `Starting fulfillment for Order: ${order.external_order_id}`,
+        message: this.$t('orders.notifications.fulfillStarted', { id: order.external_order_id }),
         icon: 'las la-truck'
       });
     },
     messageBuyer(order) {
        this.$q.notify({
         type: 'info',
-        message: `Opening messenger for: ${order.marketplace_buyer_id}`,
+        message: this.$t('orders.notifications.openingMessenger', { id: order.marketplace_buyer_id }),
         icon: 'las la-comment'
       });
     },
     cancelOrder(order) {
       this.$q.confirm({
-        title: 'Cancel Order',
-        message: `Are you sure you want to cancel order #${order.external_order_id}? This will also attempt to cancel it on eBay.`,
+        title: this.$t('orders.details.cancelOrder'),
+        message: this.$t('orders.notifications.cancelConfirm', { id: order.external_order_id }),
         cancel: true,
         persistent: true
       }).onOk(() => {
         this.$q.notify({
           type: 'warning',
-          message: `Cancellation request sent for order #${order.external_order_id}`,
+          message: this.$t('orders.notifications.cancelSent', { id: order.external_order_id }),
           icon: 'las la-exclamation-circle'
         });
       });

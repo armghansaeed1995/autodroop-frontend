@@ -23,7 +23,7 @@
       />
     </div>
 
-    <q-inner-loading :showing="loading" label="Fetching dashboard data..." label-class="text-teal" label-style="font-size: 1.1em">
+    <q-inner-loading :showing="loading" :label="$t('customerDashboard.fetchingData')" label-class="text-teal" label-style="font-size: 1.1em">
       <q-spinner-gears size="50px" color="teal" />
     </q-inner-loading>
 
@@ -53,19 +53,19 @@
         <div class="row q-col-gutter-md q-mb-lg">
           <div class="col-12 col-sm-6 col-md-4">
             <q-card flat class="q-pa-md h-100">
-              <div class="text-subtitle1 text-weight-medium q-mb-sm">Total Sales</div>
+              <div class="text-subtitle1 text-weight-medium q-mb-sm">{{ $t('customerDashboard.totalSales') }}</div>
               <div class="text-h5 text-weight-bold text-primary">${{ stats.totalSales.toFixed(2) }}</div>
             </q-card>
           </div>
           <div class="col-12 col-sm-6 col-md-4">
             <q-card flat class="q-pa-md h-100">
-              <div class="text-subtitle1 text-weight-medium q-mb-sm">Total Orders</div>
+              <div class="text-subtitle1 text-weight-medium q-mb-sm">{{ $t('customerDashboard.totalOrders') }}</div>
               <div class="text-h5 text-weight-bold text-secondary">{{ stats.orderCount }}</div>
             </q-card>
           </div>
           <div class="col-12 col-sm-6 col-md-4">
             <q-card flat class="q-pa-md h-100">
-              <div class="text-subtitle1 text-weight-medium q-mb-sm">Active Listings</div>
+              <div class="text-subtitle1 text-weight-medium q-mb-sm">{{ $t('customerDashboard.activeListings') }}</div>
               <div class="text-h5 text-weight-bold text-info">{{ stats.activeListings }}</div>
             </q-card>
           </div>
@@ -115,7 +115,7 @@
                   :text-color="invoice.status === 'Paid' ? 'positive' : 'warning'"
                   dense size="sm" class="text-weight-bold"
                 >
-                  {{ invoice.status }}
+                  {{ $t(`common.statuses.${invoice.status.toLowerCase()}`) }}
                 </q-chip>
               </q-item-section>
             </q-item>
@@ -175,7 +175,7 @@ export default {
       this.$router.push('/buy-package');
       this.$q.notify({
         type: 'info',
-        message: 'Your account is pending. Please select a package.',
+        message: this.$t('customerDashboard.notifications.accountPending'),
         icon: 'las la-exclamation-triangle',
         position: 'top-right'
       });
@@ -200,7 +200,7 @@ export default {
         this.$router.push('/customer/login');
         this.$q.notify({
           type: 'negative',
-          message: 'Session expired or no user data found. Please log in again.',
+          message: this.$t('customerDashboard.notifications.sessionExpired'),
           icon: 'las la-user-circle',
           position: 'top-right'
         });
@@ -222,7 +222,7 @@ export default {
       } catch (error) {
         this.$q.notify({
           type: 'negative',
-          message: 'Failed to fetch customer details.',
+          message: this.$t('customerDashboard.notifications.fetchCustomerError'),
           icon: 'las la-exclamation-triangle',
           position: 'top-right'
         });
@@ -241,7 +241,7 @@ export default {
       } catch (error) {
         this.$q.notify({
           type: 'negative',
-          message: error.response?.data?.message || 'Failed to fetch dashboard statistics.',
+          message: error.response?.data?.message || this.$t('customerDashboard.notifications.fetchStatsError'),
           icon: 'las la-exclamation-triangle',
           position: 'top-right'
         });

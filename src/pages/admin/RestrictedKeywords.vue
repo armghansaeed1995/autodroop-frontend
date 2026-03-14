@@ -233,6 +233,7 @@ export default {
         showAddDialog.value = false;
         fetchKeywords();
       } catch (e) {
+        console.error(e);
         $q.notify({ type: 'negative', message: 'Failed to add keyword' });
       }
     };
@@ -252,6 +253,7 @@ export default {
         uploadFile.value = null;
         fetchKeywords();
       } catch (e) {
+        console.error(e);
         $q.notify({ type: 'negative', message: 'Upload failed' });
       } finally {
         uploading.value = false;

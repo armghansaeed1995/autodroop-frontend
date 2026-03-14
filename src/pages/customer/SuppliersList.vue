@@ -302,6 +302,7 @@ export default {
         // Re-subscribe to catch any new MFA enabled accounts
         await this.subscribeToOTP();
       } catch (error) {
+        console.error(error);
         this.$q.notify({
           type: 'negative',
           message: error.response?.data?.message || 'Failed to save account.'
@@ -323,6 +324,7 @@ export default {
           this.$q.notify({ type: 'positive', message: 'Account deleted.' });
           await this.fetchSuppliers();
         } catch (error) {
+          console.error(error);
           this.$q.notify({ type: 'negative', message: 'Delete failed.' });
         } finally {
           this.loading = false;

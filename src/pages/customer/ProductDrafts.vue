@@ -1,8 +1,8 @@
 <template>
   <q-page padding class="bg-page">
     <div class="q-mb-xl">
-      <h1 class="text-h4 text-weight-bold q-my-none tracking-tight">Product Drafts</h1>
-      <p class="text-body2 text-grey-6 q-mt-xs">Optimize and prepare your listings before publishing to eBay.</p>
+      <h1 class="text-h4 text-weight-bold q-my-none tracking-tight">{{ $t('productDrafts.title') }}</h1>
+      <p class="text-body2 text-grey-6 q-mt-xs">{{ $t('productDrafts.subtitle') }}</p>
     </div>
 
     <!-- Table Card -->
@@ -22,7 +22,7 @@
         <template v-slot:top>
           <div class="row full-width items-center justify-between q-gutter-y-md">
             <div class="text-h6 text-weight-bold">
-              All Drafts
+              {{ $t('productDrafts.allDrafts') }}
               <q-badge v-if="drafts.length > 0" color="primary" class="q-ml-sm">{{ drafts.length }}</q-badge>
             </div>
 
@@ -30,14 +30,14 @@
               <q-btn
                 color="primary"
                 icon="las la-plus"
-                label="Add ASIN List"
+                :label="$t('productDrafts.addAsinList')"
                 unelevated
                 @click="showAsinDialog = true"
               />
               <q-btn
                 color="secondary"
                 icon="las la-file-upload"
-                label="Import CSV"
+                :label="$t('productDrafts.importCsv')"
                 unelevated
                 @click="showCsvImportDialog = true"
               />
@@ -124,13 +124,13 @@
           <q-td :props="props">
             <div class="row q-gutter-xs justify-end">
               <q-btn flat round dense color="green" icon="las la-rocket" @click="publishDraft(props.row)">
-                <q-tooltip>Publish to eBay</q-tooltip>
+                <q-tooltip>{{ $t('productDrafts.tooltips.publish') }}</q-tooltip>
               </q-btn>
               <q-btn flat round dense color="yellow-9" icon="las la-pen" @click="editDraft(props.row)">
-                <q-tooltip>Edit Draft</q-tooltip>
+                <q-tooltip>{{ $t('productDrafts.tooltips.edit') }}</q-tooltip>
               </q-btn>
               <q-btn flat round dense color="negative" icon="las la-trash-alt" @click="deleteDraft(props.row)">
-                <q-tooltip>Delete</q-tooltip>
+                <q-tooltip>{{ $t('productDrafts.tooltips.delete') }}</q-tooltip>
               </q-btn>
             </div>
           </q-td>
@@ -147,16 +147,16 @@
               <q-avatar size="28px" color="white" text-color="primary" class="text-weight-bold q-mr-sm">
                 {{ selected.length }}
               </q-avatar>
-              <div class="text-subtitle2">Drafts Selected</div>
+              <div class="text-subtitle2">{{ $t('productDrafts.bulkActions.selected') }}</div>
             </div>
 
             <q-separator vertical dark class="q-mx-md opacity-20" />
 
             <div class="row items-center q-gutter-md">
-              <q-btn flat no-caps icon="las la-rocket" label="Upload Drafts" @click="bulkPublish" />
-              <q-btn flat no-caps icon="las la-trash-alt" label="Delete" color="red-2" @click="bulkDelete" />
-              <q-btn flat no-caps icon="las la-calendar" label="Schedule" />
-              <q-btn flat no-caps icon="lab la-ebay" label="Change eBay Account" @click="showAccountSelector = true" />
+              <q-btn flat no-caps icon="las la-rocket" :label="$t('productDrafts.bulkActions.upload')" @click="bulkPublish" />
+              <q-btn flat no-caps icon="las la-trash-alt" :label="$t('productDrafts.bulkActions.delete')" color="red-2" @click="bulkDelete" />
+              <q-btn flat no-caps icon="las la-calendar" :label="$t('productDrafts.bulkActions.schedule')" />
+              <q-btn flat no-caps icon="lab la-ebay" :label="$t('productDrafts.bulkActions.changeAccount')" @click="showAccountSelector = true" />
             </div>
 
             <q-space />
@@ -170,13 +170,13 @@
     <q-dialog v-model="showAsinDialog" persistent>
       <q-card style="width: 500px; max-width: 90vw; border-radius: 16px;">
         <q-card-section class="row items-center">
-          <div class="text-h6 text-weight-bold">Import from Amazon ASINs</div>
+          <div class="text-h6 text-weight-bold">{{ $t('productDrafts.importDialog.title') }}</div>
           <q-space />
           <q-btn icon="close" flat round dense v-close-popup />
         </q-card-section>
 
         <q-card-section class="q-pt-none">
-          <p class="text-body2 text-grey-6">Enter one ASIN per line. Products will be imported as drafts for the selected region.</p>
+          <p class="text-body2 text-grey-6">{{ $t('productDrafts.importDialog.subtitle') }}</p>
           <q-input
             v-model="asinText"
             type="textarea"
@@ -190,7 +190,7 @@
               <q-select 
                 filled 
                 v-model="importRegion" 
-                label="Region" 
+                :label="$t('productDrafts.importDialog.region')" 
                 :options="['IT', 'UK', 'US', 'DE']" 
                 dense 
               />
@@ -199,7 +199,7 @@
               <q-select 
                 filled 
                 v-model="selectedBuyerAccount" 
-                label="Target eBay Account" 
+                :label="$t('productDrafts.importDialog.targetAccount')" 
                 :options="buyerAccounts"
                 option-label="account_name"
                 option-value="id"
@@ -212,10 +212,10 @@
         </q-card-section>
 
         <q-card-actions align="right" class="q-pa-md">
-          <q-btn flat label="Cancel" color="grey-7" v-close-popup />
+          <q-btn flat :label="$t('common.cancel')" color="grey-7" v-close-popup />
           <q-btn 
             unelevated 
-            label="Start Import" 
+            :label="$t('productDrafts.importDialog.startImport')" 
             color="primary" 
             @click="importAsins" 
             :loading="importing"
@@ -228,7 +228,7 @@
     <!-- Account Selector Dialog (for bulk change) -->
     <q-dialog v-model="showAccountSelector">
       <q-card style="min-width: 350px">
-        <q-card-section><div class="text-h6">Select eBay Account</div></q-card-section>
+        <q-card-section><div class="text-h6">{{ $t('productDrafts.accountSelector.title') }}</div></q-card-section>
         <q-card-section>
           <q-select
             filled
@@ -238,12 +238,12 @@
             option-value="id"
             emit-value
             map-options
-            label="eBay Account"
+            :label="$t('productDrafts.accountSelector.label')"
           />
         </q-card-section>
         <q-card-actions align="right">
-          <q-btn flat label="Cancel" v-close-popup />
-          <q-btn color="primary" label="Apply to Selected" @click="applyAccountBulk" v-close-popup />
+          <q-btn flat :label="$t('common.cancel')" v-close-popup />
+          <q-btn color="primary" :label="$t('productDrafts.accountSelector.apply')" @click="applyAccountBulk" v-close-popup />
         </q-card-actions>
       </q-card>
     </q-dialog>
@@ -254,12 +254,14 @@
 <script>
 import { ref, onMounted, computed } from 'vue';
 import { useQuasar } from 'quasar';
+import { useI18n } from 'vue-i18n';
 import { api } from 'boot/axios';
 
 export default {
   name: 'ProductDraftsPage',
   setup() {
     const $q = useQuasar();
+    const { t } = useI18n();
     const drafts = ref([]);
     const selected = ref([]);
     const loading = ref(false);
@@ -279,14 +281,14 @@ export default {
     const isDark = computed(() => $q.dark.isActive);
 
     const columns = [
-      { name: 'product', align: 'left', label: 'Product', field: row => row.group.title, sortable: true },
-      { name: 'upload_date', align: 'center', label: 'Upload Date', field: row => row.group.upload_date, sortable: true },
-      { name: 'region', align: 'center', label: 'Region', field: row => row.group.region },
-      { name: 'stock', align: 'center', label: 'Stock', field: row => row.group.stock, sortable: true },
-      { name: 'price', align: 'right', label: 'Price (BUY/SELL)', field: row => row.group.price, sortable: true },
-      { name: 'profit', align: 'center', label: 'Profit', field: row => row.group.profit, sortable: true },
-      { name: 'item_id', align: 'center', label: 'ItemID / ASIN', field: row => row.group.supplier_pid },
-      { name: 'actions', align: 'right', label: 'Actions' }
+      { name: 'product', align: 'left', label: t('productDrafts.columns.product'), field: row => row.group.title, sortable: true },
+      { name: 'upload_date', align: 'center', label: t('productDrafts.columns.uploadDate'), field: row => row.group.upload_date, sortable: true },
+      { name: 'region', align: 'center', label: t('productDrafts.columns.region'), field: row => row.group.region },
+      { name: 'stock', align: 'center', label: t('productDrafts.columns.stock'), field: row => row.group.stock, sortable: true },
+      { name: 'price', align: 'right', label: t('productDrafts.columns.price'), field: row => row.group.price, sortable: true },
+      { name: 'profit', align: 'center', label: t('productDrafts.columns.profit'), field: row => row.group.profit, sortable: true },
+      { name: 'item_id', align: 'center', label: t('productDrafts.columns.itemId'), field: row => row.group.supplier_pid },
+      { name: 'actions', align: 'right', label: t('productDrafts.columns.actions') }
     ];
 
     const fetchDrafts = async () => {
@@ -296,7 +298,7 @@ export default {
         drafts.value = res.data.data.items;
       } catch (e) {
         console.error(e);
-        $q.notify({ color: 'negative', message: 'Failed to fetch drafts' });
+        $q.notify({ color: 'negative', message: t('productDrafts.notifications.fetchError') });
       } finally {
         loading.value = false;
       }
@@ -327,13 +329,13 @@ export default {
           region: importRegion.value,
           buyerAccountId: selectedBuyerAccount.value
         });
-        $q.notify({ color: 'positive', message: `Successfully queued ${asins.length} ASINs for import.` });
+        $q.notify({ color: 'positive', message: t('productDrafts.notifications.importSuccess', { count: asins.length }) });
         showAsinDialog.value = false;
         asinText.value = '';
         fetchDrafts();
       } catch (e) {
         console.error(e);
-        $q.notify({ color: 'negative', message: 'Import failed.' });
+        $q.notify({ color: 'negative', message: t('productDrafts.notifications.importError') });
       } finally {
         importing.value = false;
       }
@@ -341,37 +343,37 @@ export default {
 
     const publishDraft = async (row) => {
       $q.dialog({
-        title: 'Publish to eBay',
-        message: 'This will move the product to inventory and upload it to the live eBay store. Continue?',
+        title: t('productDrafts.tooltips.publish'),
+        message: t('productDrafts.notifications.publishConfirm'),
         cancel: true,
-        ok: { label: 'Publish', color: 'green' }
+        ok: { label: t('productDrafts.notifications.publishLabel'), color: 'green' }
       }).onOk(async () => {
         try {
           await api.post('/products/publish', {
             groupIds: [row.id],
             buyerAccountId: row.group.myebayid
           });
-          $q.notify({ color: 'positive', message: 'Publishing started.' });
+          $q.notify({ color: 'positive', message: t('productDrafts.notifications.publishStarted') });
           fetchDrafts();
         } catch (e) {
           console.error(e);
-          $q.notify({ color: 'negative', message: 'Publish failed.' });
+          $q.notify({ color: 'negative', message: t('productDrafts.notifications.publishError') });
         }
       });
     };
 
     const bulkPublish = async () => {
       $q.dialog({
-        title: 'Bulk Publish',
-        message: `Publish ${selected.value.length} products to eBay?`,
+        title: t('productDrafts.notifications.bulkPublishTitle'),
+        message: t('productDrafts.notifications.bulkPublishConfirm', { count: selected.value.length }),
         cancel: true,
-        ok: { label: 'Publish All', color: 'green' }
+        ok: { label: t('productDrafts.notifications.publishAll'), color: 'green' }
       }).onOk(async () => {
         try {
           await api.post('/products/publish', {
             groupIds: selected.value.map(s => s.id)
           });
-          $q.notify({ color: 'positive', message: 'Bulk publishing started.' });
+          $q.notify({ color: 'positive', message: t('productDrafts.notifications.bulkPublishStarted') });
           selected.value = [];
           fetchDrafts();
         } catch (e) {
@@ -382,16 +384,16 @@ export default {
 
     const bulkDelete = () => {
       $q.dialog({
-        title: 'Confirm Delete',
-        message: `Are you sure you want to permanently delete ${selected.value.length} drafts?`,
+        title: t('productDrafts.notifications.deleteConfirmTitle'),
+        message: t('productDrafts.notifications.deleteConfirmMsg', { count: selected.value.length }),
         cancel: true,
-        ok: { color: 'negative', label: 'Delete All' }
+        ok: { color: 'negative', label: t('productDrafts.notifications.deleteAll') }
       }).onOk(async () => {
         try {
           await api.post('/products/delete-bulk', {
             groupIds: selected.value.map(s => s.id)
           });
-          $q.notify({ color: 'positive', message: 'Drafts deleted.' });
+          $q.notify({ color: 'positive', message: t('productDrafts.notifications.deleteSuccess') });
           selected.value = [];
           fetchDrafts();
         } catch (e) {
@@ -402,7 +404,7 @@ export default {
 
     const applyAccountBulk = () => {
       // Logic to change target account locally or via API
-      $q.notify({ message: 'Account updated for selected drafts (Simulated)', color: 'info' });
+      $q.notify({ message: t('productDrafts.notifications.accountUpdatedSim'), color: 'info' });
     };
 
     onMounted(() => {
