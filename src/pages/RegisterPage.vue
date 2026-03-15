@@ -21,7 +21,7 @@
             <div class="text-body2 text-grey-6">Fill in the details below to get started.</div>
           </div>
 
-          <q-form @submit="onSubmit" @reset="onReset" class="q-gutter-y-md">
+          <q-form @submit="onSubmit" class="q-gutter-y-md">
 
             <q-input
               filled
@@ -154,21 +154,13 @@
                 unelevated
                 :loading="loading"
               />
-              <q-btn
-                label="Reset"
-                type="reset"
-                color="secondary"
-                size="lg"
-                flat
-                class="col-auto"
-                :disable="loading"
-              />
+
             </div>
           </q-form>
 
           <div class="text-center q-mt-xl text-body2">
             <span class="text-grey-6">Already have an account?</span>
-            <router-link to="/login" class="text-primary text-weight-medium q-ml-xs" style="text-decoration: none;">
+            <router-link to="/customer/login" class="text-primary text-weight-medium q-ml-xs" style="text-decoration: none;">
               Sign in here
             </router-link>
           </div>
@@ -240,22 +232,33 @@ export default {
           companyName: this.companyName,
           home_country: this.homeCountry,
           password: this.password,
-          confirmPassword: this.confirmPassword // Though not sent to backend, keeping for local validation consistency
+          confirmPassword: this.confirmPassword
         });
 
         this.$q.notify({
           color: 'positive',
-          message: response.data.message + ' Please select a package to complete your registration.',
+          message: response.data.message + ' You can now login to your account.',
           icon: 'las la-check-circle',
           position: 'top-right'
         });
 
-        // Store customer ID and email temporarily for the package purchase flow
-        this.$q.localStorage.set('pendingCustomerId', response.data.customer.id);
-        this.$q.localStorage.set('pendingCustomerEmail', response.data.customer.email);
+        this.$router.push('/customer/login');
 
-        // Redirect to buy package page
-        this.$router.push('/buy-package');
+        return
+
+        // this.$q.notify({
+        //   color: 'positive',
+        //   message: response.data.message + ' Please select a package to complete your registration.',
+        //   icon: 'las la-check-circle',
+        //   position: 'top-right'
+        // });
+
+        // // Store customer ID and email temporarily for the package purchase flow
+        // this.$q.localStorage.set('pendingCustomerId', response.data.customer.id);
+        // this.$q.localStorage.set('pendingCustomerEmail', response.data.customer.email);
+
+        // // Redirect to buy package page
+        // this.$router.push('/buy-package');
       } catch (error) {
         let errorMessage = 'An unexpected error occurred during registration.';
         if (error.response && error.response.data && error.response.data.message) {
@@ -270,17 +273,6 @@ export default {
       } finally {
         this.loading = false;
       }
-    },
-    onReset() {
-      this.firstName = '';
-      this.lastName = '';
-      this.email = '';
-      this.companyName = '';
-      this.password = '';
-      this.confirmPassword = '';
-      this.isPwdVisible = false;
-      this.isConfirmPwdVisible = false;
-      this.acceptTerms = false;
     }
   }
 }

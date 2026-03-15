@@ -44,10 +44,10 @@
             Connect the master eBay account used for administrative tasks, global catalog synchronization, and platform-wide automated messaging.
           </p>
 
-          <div v-if="ebayStatus.connected" class="q-pa-md bg-grey-2 rounded-borders q-mb-md">
+          <div v-if="ebayStatus.connected" class="q-pa-md rounded-borders q-mb-md">
             <div class="row items-center q-col-gutter-sm">
               <div class="col-auto">
-                <q-avatar icon="shop" color="primary" text-color="white" size="40px" />
+                <q-avatar icon="lab la-ebay" color="primary" text-color="white" size="40px" />
               </div>
               <div class="col">
                 <div class="text-subtitle1 text-weight-bold">{{ ebayStatus.account_name }}</div>
@@ -154,8 +154,7 @@ export default {
       try {
         const response = await this.$api.get('/admin/ebay/auth-url');
         if (response.data && response.data.url) {
-//          window.location.href = response.data.url;
-          window.open(response.data.url, '_blank');
+          window.location.href = response.data.url;
         }
       } catch (error) {
         console.error('Failed to generate eBay authorization URL:', error);

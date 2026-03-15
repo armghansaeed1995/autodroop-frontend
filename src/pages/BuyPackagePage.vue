@@ -180,7 +180,7 @@ export default {
   }
 
   body.body--dark & {
-    background: $bg-dark;
+    background: $dark;
     &:hover {
       box-shadow: $shadow-4;
     }

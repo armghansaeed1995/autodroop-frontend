@@ -25,11 +25,10 @@ $border-light  : rgba(69, 79, 91, 0.15); // Light Slate/Grey as border
 // ==========================================
 // THEME TOKENS: DARK MODE
 // ==========================================
-$bg-dark       : #1A1C1E; // Deep Zinc/Charcoal (OLED-friendly)
 $surface-dark  : #121313; // Dark Charcoal as surface
 $text-dark     : #FFFFFF; // Pure White as text
 $border-dark   : rgba(255, 255, 255, 0.1);
-
+$dark: #121313;
 // ==========================================
 // STRUCTURAL TOKENS
 // ==========================================

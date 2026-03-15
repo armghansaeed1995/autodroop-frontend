@@ -937,12 +937,29 @@ export default {
     const fetchingServices = ref(false);
 
     const fetchShippingServices = async () => {
+      const countryCode = regionCode || 'IT';
+      const cacheKey = `ebay_shipping_${countryCode}`;
+      const cacheExpiryKey = `ebay_shipping_${countryCode}_expiry`;
+      
+      const cachedData = $q.localStorage.getItem(cacheKey);
+      const cacheExpiry = $q.localStorage.getItem(cacheExpiryKey);
+      
+      if (cachedData && cacheExpiry && Date.now() < cacheExpiry) {
+        console.log(`Using cached shipping services for ${countryCode}`);
+        ebayShippingServices.value = cachedData;
+        return;
+      }
+
       fetchingServices.value = true;
       try {
         const res = await api.get('/public/ebay-shipping-services', {
-          params: { countryCode: regionCode }
+          params: { countryCode: countryCode }
         });
         ebayShippingServices.value = res.data;
+
+        // Cache for 24 hours
+        $q.localStorage.set(cacheKey, res.data);
+        $q.localStorage.set(cacheExpiryKey, Date.now() + 24 * 60 * 60 * 1000);
       } catch (e) {
         console.error('Failed to fetch eBay shipping services:', e);
       } finally {

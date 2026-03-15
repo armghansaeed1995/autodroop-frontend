@@ -440,23 +440,37 @@
                       <q-avatar :color="isDark ? 'primary-900' : 'primary-1'" text-color="primary" icon="las la-shield-alt" size="40px" class="q-mr-sm" />
                       <div class="text-h5 text-weight-bold">Business Policies</div>
                     </div>
-                    <q-select
-                      v-model="selectedOriginRegion"
-                      :options="regions"
-                      option-label="name"
-                      option-value="id"
-                      label="Ship from Region"
-                      filled
-                      dense
-                      emit-value
-                      map-options
-                      style="min-width: 200px"
-                      @update:model-value="selectPolicy"
-                    >
-                      <template v-slot:prepend>
-                        <q-icon name="las la-map-marker-alt" color="primary" />
-                      </template>
-                    </q-select>
+                    <div class="row items-center q-gutter-sm">
+                      <q-btn
+                        flat
+                        dense
+                        color="primary"
+                        icon="las la-sync"
+                        label="Refresh Shipping Cache"
+                        :loading="fetchingServices"
+                        @click="refreshShippingServices"
+                        class="q-px-sm"
+                      >
+                        <q-tooltip>Force refresh eBay shipping services from API</q-tooltip>
+                      </q-btn>
+                      <q-select
+                        v-model="selectedOriginRegion"
+                        :options="regions"
+                        option-label="name"
+                        option-value="id"
+                        label="Ship from Region"
+                        filled
+                        dense
+                        emit-value
+                        map-options
+                        style="min-width: 200px"
+                        @update:model-value="selectPolicy"
+                      >
+                        <template v-slot:prepend>
+                          <q-icon name="las la-map-marker-alt" color="primary" />
+                        </template>
+                      </q-select>
+                    </div>
                   </div>
 
                   <div v-if="activePolicy">
@@ -517,13 +531,13 @@
                       <div class="text-h5 text-weight-bold">eBay Business Policies</div>
                     </div>
                     <div class="row q-gutter-sm">
-                      <q-btn 
-                        color="secondary" 
-                        icon="las la-users-cog" 
-                        label="Apply to Customers" 
-                        size="sm" 
+                      <q-btn
+                        color="secondary"
+                        icon="las la-users-cog"
+                        label="Apply to Customers"
+                        size="sm"
                         :loading="syncingPolicies"
-                        @click="syncPoliciesToCustomers" 
+                        @click="syncPoliciesToCustomers"
                       >
                         <q-tooltip>Synchronize these policies to all existing customer accounts of this region</q-tooltip>
                       </q-btn>
@@ -653,10 +667,10 @@
           <div class="row q-col-gutter-md">
             <!-- Rule Name & Description -->
             <div class="col-12">
-              <q-input 
-                filled 
-                v-model="editingPolicy.name" 
-                label="Rule Name" 
+              <q-input
+                filled
+                v-model="editingPolicy.name"
+                label="Rule Name"
                 hint="Example: All returns must be made within 30 days"
                 counter
                 maxlength="64"
@@ -664,10 +678,10 @@
               />
             </div>
             <div class="col-12">
-              <q-input 
-                filled 
-                v-model="editingPolicy.description" 
-                label="Description (optional)" 
+              <q-input
+                filled
+                v-model="editingPolicy.description"
+                label="Description (optional)"
                 type="textarea"
                 rows="2"
                 hint="Additional text to help you identify the contents of the rule"
@@ -680,18 +694,18 @@
             <!-- Specific Fields for Return Policy -->
             <template v-if="editingPolicy.type === 'return'">
               <q-separator class="col-12 q-my-md" />
-              
+
               <div class="col-12">
                 <div class="text-subtitle1 text-weight-bold">National returns</div>
                 <q-checkbox v-model="editingPolicy.details.accept_returns_national" label="Accept returns" color="primary" />
                 <div class="text-caption text-grey-6 q-mb-sm">Allow returns for items purchased domestically.</div>
-                
+
                 <div class="row q-col-gutter-sm" v-if="editingPolicy.details.accept_returns_national">
                   <div class="col-6">
-                    <q-select 
-                      filled 
-                      dense 
-                      v-model="editingPolicy.details.return_period_national" 
+                    <q-select
+                      filled
+                      dense
+                      v-model="editingPolicy.details.return_period_national"
                       label="Allowed within"
                       :options="[
                         { label: '30 days', value: 'DAYS_30' },
@@ -702,10 +716,10 @@
                     />
                   </div>
                   <div class="col-6">
-                    <q-select 
-                      filled 
-                      dense 
-                      v-model="editingPolicy.details.return_shipping_cost_payer_national" 
+                    <q-select
+                      filled
+                      dense
+                      v-model="editingPolicy.details.return_shipping_cost_payer_national"
                       label="Return costs paid by"
                       :options="[
                         { label: 'Free for the buyer, you pay', value: 'SELLER' },
@@ -724,13 +738,13 @@
                 <div class="text-subtitle1 text-weight-bold">International Returns</div>
                 <q-checkbox v-model="editingPolicy.details.accept_returns_international" label="Accept returns" color="primary" />
                 <div class="text-caption text-grey-6 q-mb-sm">Allow returns on items purchased abroad.</div>
-                
+
                 <div class="row q-col-gutter-sm" v-if="editingPolicy.details.accept_returns_international">
                   <div class="col-6">
-                    <q-select 
-                      filled 
-                      dense 
-                      v-model="editingPolicy.details.return_period_international" 
+                    <q-select
+                      filled
+                      dense
+                      v-model="editingPolicy.details.return_period_international"
                       label="Allowed within"
                       :options="[
                         { label: '30 days', value: 'DAYS_30' },
@@ -741,10 +755,10 @@
                     />
                   </div>
                   <div class="col-6">
-                    <q-select 
-                      filled 
-                      dense 
-                      v-model="editingPolicy.details.return_shipping_cost_payer_international" 
+                    <q-select
+                      filled
+                      dense
+                      v-model="editingPolicy.details.return_shipping_cost_payer_international"
                       label="Return costs paid by"
                       :options="[
                         { label: 'Free for the buyer, you pay', value: 'SELLER' },
@@ -761,10 +775,10 @@
 
               <div class="col-12">
                 <div class="text-subtitle1 text-weight-bold">Return Policy Details</div>
-                <q-input 
-                  filled 
-                  v-model="editingPolicy.details.return_policy_details" 
-                  label="More details on return conditions (optional)" 
+                <q-input
+                  filled
+                  v-model="editingPolicy.details.return_policy_details"
+                  label="More details on return conditions (optional)"
                   type="textarea"
                   rows="4"
                   placeholder="The customer will receive a full refund if he returns the product within the indicated time limit..."
@@ -794,7 +808,7 @@
             <!-- Specific Fields for Shipping Policy -->
             <template v-else-if="editingPolicy.type === 'shipping'">
               <q-separator class="col-12 q-my-md" />
-              
+
               <div class="col-12">
                 <div class="row items-center justify-between q-mb-sm">
                   <div class="text-subtitle1 text-weight-bold">Domestic Shipping</div>
@@ -807,17 +821,17 @@
                   <q-spinner color="primary" size="sm" />
                   <span class="q-ml-sm text-grey-6">Loading eBay services...</span>
                 </div>
-                
+
                 <div v-else class="q-gutter-y-md">
                   <div v-for="(opt, idx) in editingPolicy.details.domestic_options" :key="idx" class="border rounded-sm q-pa-sm relative-position">
                     <q-btn flat round color="negative" icon="close" size="xs" class="absolute-top-right" @click="removeShippingOption(idx, false)" />
-                    
+
                     <div class="row q-col-gutter-sm">
                       <div class="col-12 col-md-8">
-                        <q-select 
-                          filled 
-                          dense 
-                          v-model="opt.service_name" 
+                        <q-select
+                          filled
+                          dense
+                          v-model="opt.service_name"
                           label="Shipping Service"
                           :options="domesticServices"
                           option-label="description"
@@ -854,17 +868,17 @@
                     <q-tooltip>Add Service</q-tooltip>
                   </q-btn>
                 </div>
-                
+
                 <div class="q-gutter-y-md">
                   <div v-for="(opt, idx) in editingPolicy.details.international_options" :key="idx" class="border rounded-sm q-pa-sm relative-position">
                     <q-btn flat round color="negative" icon="close" size="xs" class="absolute-top-right" @click="removeShippingOption(idx, true)" />
-                    
+
                     <div class="row q-col-gutter-sm">
                       <div class="col-12 col-md-12">
-                        <q-select 
-                          filled 
-                          dense 
-                          v-model="opt.service_name" 
+                        <q-select
+                          filled
+                          dense
+                          v-model="opt.service_name"
                           label="International Service"
                           :options="internationalServices"
                           option-label="description"
@@ -890,11 +904,11 @@
               <q-separator class="col-12 q-my-md" />
 
               <div class="col-12">
-                <q-input 
-                  filled 
-                  dense 
-                  v-model.number="editingPolicy.details.handling_time" 
-                  label="Handling Time (days)" 
+                <q-input
+                  filled
+                  dense
+                  v-model.number="editingPolicy.details.handling_time"
+                  label="Handling Time (days)"
                   type="number"
                   suffix="working days"
                 />
@@ -1079,12 +1093,29 @@ export default {
     const fetchingServices = ref(false);
 
     const fetchShippingServices = async () => {
+      const countryCode = selectedRegion.value || 'IT';
+      const cacheKey = `ebay_shipping_${countryCode}`;
+      const cacheExpiryKey = `ebay_shipping_${countryCode}_expiry`;
+
+      const cachedData = $q.localStorage.getItem(cacheKey);
+      const cacheExpiry = $q.localStorage.getItem(cacheExpiryKey);
+
+      if (cachedData && cacheExpiry && Date.now() < cacheExpiry) {
+        console.log(`Using cached shipping services for ${countryCode}`);
+        ebayShippingServices.value = cachedData;
+        return;
+      }
+
       fetchingServices.value = true;
       try {
         const res = await api.get('/public/ebay-shipping-services', {
-          params: { countryCode: selectedRegion.value }
+          params: { countryCode: countryCode }
         });
         ebayShippingServices.value = res.data;
+
+        // Cache for 24 hours
+        $q.localStorage.set(cacheKey, res.data);
+        $q.localStorage.set(cacheExpiryKey, Date.now() + 24 * 60 * 60 * 1000);
       } catch (e) {
         console.error('Failed to fetch eBay shipping services:', e);
       } finally {
@@ -1092,13 +1123,30 @@ export default {
       }
     };
 
+    const refreshShippingServices = async () => {
+      const countryCode = selectedRegion.value || 'IT';
+      const cacheKey = `ebay_shipping_${countryCode}`;
+      const cacheExpiryKey = `ebay_shipping_${countryCode}_expiry`;
+
+      // Clear cache for this specific region
+      $q.localStorage.remove(cacheKey);
+      $q.localStorage.remove(cacheExpiryKey);
+
+      await fetchShippingServices();
+
+      $q.notify({
+        type: 'positive',
+        message: `Shipping services refreshed for ${countryCode}`
+      });
+    };
+
     const editEbayPolicy = async (index) => {
       editingPolicyIndex.value = index;
       editingPolicy.value = JSON.parse(JSON.stringify(form.ebay_policies[index]));
-      
+
       // Initialize details if empty
       if (!editingPolicy.value.details) editingPolicy.value.details = {};
-      
+
       if (editingPolicy.value.type === 'return') {
         const d = editingPolicy.value.details;
         if (d.accept_returns_national === undefined) d.accept_returns_national = true;
@@ -1121,21 +1169,21 @@ export default {
         if (!d.international_options) d.international_options = [];
         if (d.handling_time === undefined) d.handling_time = 2;
       }
-      
+
       policyDialog.value = true;
     };
 
     const addShippingOption = (isInternational = false) => {
       if (!editingPolicy.value.details) editingPolicy.value.details = {};
       const d = editingPolicy.value.details;
-      
+
       const option = {
         service_name: '',
         shipping_cost: 0,
         additional_cost: 0,
         free_shipping: false
       };
-      
+
       if (isInternational) {
         if (!d.international_options) d.international_options = [];
         d.international_options.push(option);
@@ -1188,7 +1236,7 @@ export default {
     const syncingPolicies = ref(false);
     const syncPoliciesToCustomers = async () => {
       if (!templateId.value) return;
-      
+
       $q.dialog({
         title: 'Mass Sync Policies',
         message: 'This will push these eBay policies to ALL existing customers using this Region/Supplier combination. Existing custom policies for those customers might be overwritten. Continue?',
@@ -1279,6 +1327,7 @@ export default {
       addShippingOption,
       removeShippingOption,
       syncPoliciesToCustomers,
+      refreshShippingServices,
       syncingPolicies,
       domesticServices,
       internationalServices,
