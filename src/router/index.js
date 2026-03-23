@@ -36,7 +36,22 @@ export default defineRouter(function (/* { store, ssrContext } */) {
 
   // Placeholder for authentication and role checking
   const isAuthenticated = () => {
-    return !!LocalStorage.getItem('token');
+    const token = LocalStorage.getItem('token');
+    if (!token) return false;
+
+    try {
+      // Simple decode of JWT payload to check expiration
+      const payload = JSON.parse(atob(token.split('.')[1]));
+      if (payload.exp && Date.now() >= payload.exp * 1000) {
+        LocalStorage.remove('token');
+        LocalStorage.remove('user');
+        return false;
+      }
+      return true;
+    } catch (e) {
+      console.error('Error checking token expiration:', e);
+      return false;
+    }
   };
 
   const getUserRole = () => {

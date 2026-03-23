@@ -831,13 +831,10 @@
                         <q-select
                           filled
                           dense
-                          v-model="opt.service_name"
+                          v-model="opt.service"
                           label="Shipping Service"
                           :options="domesticServices"
                           option-label="description"
-                          option-value="service_name"
-                          emit-value
-                          map-options
                         />
                       </div>
                       <div class="col-12 col-md-4 flex items-center">
@@ -878,13 +875,10 @@
                         <q-select
                           filled
                           dense
-                          v-model="opt.service_name"
+                          v-model="opt.service"
                           label="International Service"
                           :options="internationalServices"
                           option-label="description"
-                          option-value="service_name"
-                          emit-value
-                          map-options
                         />
                       </div>
                       <div class="col-6">
@@ -1178,7 +1172,7 @@ export default {
       const d = editingPolicy.value.details;
 
       const option = {
-        service_name: '',
+        service: null,
         shipping_cost: 0,
         additional_cost: 0,
         free_shipping: false

@@ -3,7 +3,6 @@ import { LocalStorage } from 'quasar';
 import axios from 'axios';
 
 // Create a custom Axios instance named 'api'
-console.log("process.env.API_BASE_URL",process.env)
 const api = axios.create({
   baseURL: process.env.API_BASE_URL
 });
@@ -19,16 +18,31 @@ api.interceptors.request.use(config => {
   return Promise.reject(error);
 });
 
-export default boot(({ app }) => {
+export default boot(({ app, router }) => {
+  // Add a response interceptor to handle 401 Unauthorized errors
+  api.interceptors.response.use(
+    response => response,
+    error => {
+      if (error.response && error.response.status === 401) {
+        // Clear local storage
+        LocalStorage.remove('token');
+        LocalStorage.remove('user');
+
+        // Identify current path to redirect appropriately
+        const currentPath = router.currentRoute.value.path;
+        
+        if (currentPath.startsWith('/admin')) {
+          router.push('/admin/login');
+        } else {
+          router.push('/customer/login');
+        }
+      }
+      return Promise.reject(error);
+    }
+  );
+
   // for use inside Vue files (Options API) through this.$axios and this.$api
-  // We'll replace $axios with $api for our custom instance, or use both if needed
   app.config.globalProperties.$api = api;
-
-  // You can still keep the original axios if you need it for other non-API requests
-  // app.config.globalProperties.$axios = axios;
-
-  // for use inside Vue files (Composition API)
-  // app.provide('api', api);
 });
 
 // Export the api instance for use in standard JS files
